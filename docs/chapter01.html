@@ -156,13 +156,13 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],
 планировщик движения или физический симулятор.</p>
 <h3 id="sec-1-1-3">1.1.3. Исторический контекст: зрение начиналось с трёх измерений</h3>
 <p>Первой работой по компьютерному зрению обычно называют диссертацию Лоуренса Робертса
-(L. G. Roberts, <em>Machine Perception of Three-Dimensional Solids</em>, MIT, 1963). В ней по одной
+(<a href="https://dspace.mit.edu/handle/1721.1/11589">L. G. Roberts, <em>Machine Perception of Three-Dimensional Solids</em>, MIT, 1963</a>). В ней по одной
 фотографии многогранника находились рёбра, а по рёбрам — трёхмерная модель объекта. То есть
 дисциплина начиналась именно с обратной задачи реконструкции, а не с распознавания.</p>
 <p>Плоское зрение — более поздняя специализация, возникшая из-за ограничений вычислительных ресурсов
 и доступных данных. К 2020-м годам маятник качнулся обратно: нейронные поля, дифференцируемый
 рендеринг и feed-forward-модели вернули трёхмерную постановку в центр внимания.</p>
-<p>Отдельного упоминания заслуживает Дэвид Марр (D. Marr, <em>Vision</em>, 1982), предложивший трёхуровневую
+<p>Отдельного упоминания заслуживает Дэвид Марр (<a href="https://mitpress.mit.edu/9780262514620/vision/">D. Marr, <em>Vision</em>, 1982</a>), предложивший трёхуровневую
 схему зрительного восприятия: первичный эскиз (primal sketch) → <strong>2½-мерный эскиз (2.5D sketch)</strong> →
 трёхмерная объектно-центрированная модель. Термин «2.5D», которым мы будем пользоваться в § 1.4.3,
 пришёл именно оттуда: это описание видимой поверхности в системе координат наблюдателя, ещё
@@ -205,7 +205,7 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],
 </table>
 <p>Эти четыре компоненты вместе с моделью распространения света определяют изображение однозначно.
 Формально яркость, уходящая из точки <strong>x</strong> в направлении <strong>ω</strong>, описывается уравнением рендеринга
-(Kajiya, 1986):</p>
+(<a href="https://doi.org/10.1145/15922.15902">Kajiya, 1986</a>):</p>
 <p>$$
 L_o(\mathbf{x}, \boldsymbol\omega_o) \;=\; L_e(\mathbf{x}, \boldsymbol\omega_o) \;+\;
 \int_{\Omega} f_r(\mathbf{x}, \boldsymbol\omega_i, \boldsymbol\omega_o)\,
@@ -255,7 +255,7 @@ $$</p>
 освещённость. Тёмная поверхность при ярком свете и светлая при тусклом дают одно и то же число.
 Разделение этих факторов (inverse rendering) требует дополнительных предположений.</p>
 <p>Есть и более тонкие вырождения. Классический пример — <strong>бас-рельефная неоднозначность</strong>
-(Belhumeur, Kriegman, Yuille, 1999): при ламбертовой модели и ортографической проекции сжатие
+(<a href="https://doi.org/10.1023/A:1008154927611">Belhumeur, Kriegman, Yuille, 1999</a>): при ламбертовой модели и ортографической проекции сжатие
 рельефа вдоль оси взгляда с одновременным преобразованием освещения даёт неотличимые изображения.
 Поэтому по затенению форма восстанавливается лишь с точностью до этого семейства.</p>
 <h3 id="sec-1-3-3">1.3.3. Три источника доопределения</h3>
@@ -386,7 +386,7 @@ $\text{RGB} = (\mathbf{n} + 1)/2$. Здесь важна деталь, о кот
 на единичной сфере $S^2$, а не три произвольных числа. Сеть, предсказывающая нормали, должна это
 учитывать; в лекции 2 ровно та же история повторится для вращений.</p>
 <figure><img alt="Карта глубины и карта нормалей" src="img/lecture01_depth_and_normals.png" /><figcaption>Рис. 1.4. Объект с точки зрения камеры, его карта глубины (светлее — ближе) и карта нормалей.</figcaption></figure>
-<p>Термин <strong>2½-мерный эскиз</strong> введён Марром и Нисихарой (Marr &amp; Nishihara, 1978; Marr, <em>Vision</em>, 1982)
+<p>Термин <strong>2½-мерный эскиз</strong> введён Марром и Нисихарой (<a href="https://doi.org/10.1098/rspb.1978.0020">Marr &amp; Nishihara, 1978</a>; <a href="https://mitpress.mit.edu/9780262514620/vision/">Marr, <em>Vision</em>, 1982</a>)
 как вторая из трёх стадий зрения: первичный эскиз → 2½D-эскиз → трёхмерная объектно-центрированная
 модель. По их определению, 2½D-эскиз представляет «ориентацию и глубину видимых поверхностей, а
 также разрывы» в системе координат наблюдателя. «Половина» здесь — не буквальная половина
@@ -396,18 +396,17 @@ $\text{RGB} = (\mathbf{n} + 1)/2$. Здесь важна деталь, о кот
 может представить самоокклюзии, обратную сторону объекта и несколько поверхностей вдоль одного
 луча. Чтобы получить полную модель, нужно несколько видов и процедура их слияния (лекция 12);
 зависимость от ракурса — первое из ограничений, по которым мы сравниваем представления (§ 1.4.2).</p>
-<p>Замечание о терминологии: работы вроде MarrNet (Wu et al., 2017) называют «2.5D-эскизом» тройку
+<p>Замечание о терминологии: работы вроде MarrNet (<a href="https://arxiv.org/abs/1711.03129">Wu et al., 2017</a>) называют «2.5D-эскизом» тройку
 {глубина, нормали, силуэт} — со ссылкой на Марра и с аргументом, что эти величины проще
 восстанавливать из RGB и они лучше переносятся с синтетики на реальные снимки.</p>
-<p>Существуют расширения, хранящие вдоль луча больше одной точки. <strong>Layered Depth Image</strong> (Shade
-et al., 1998) записывает для каждого пикселя список пересечений луча с поверхностями — видимую
-и то, что за ней. <strong>Multi-Plane Image</strong> (Zhou et al., 2018) представляет сцену стопкой
+<p>Существуют расширения, хранящие вдоль луча больше одной точки. <strong>Layered Depth Image</strong> (<a href="https://doi.org/10.1145/280814.280882">Shade et al., 1998</a>) записывает для каждого пикселя список пересечений луча с поверхностями — видимую
+и то, что за ней. <strong>Multi-Plane Image</strong> (<a href="https://arxiv.org/abs/1805.09817">Zhou et al., 2018</a>) представляет сцену стопкой
 полупрозрачных плоскостей на фиксированных глубинах; новые виды синтезируются альфа-композитингом
 и работают хорошо при малых смещениях камеры. MPI исторически стал мостом от классического
 image-based rendering к нейронным полям.</p>
 <figure><img alt="LDI и MPI" src="img/lecture01_mpi_ldi.png" /><figcaption>Рис. 1.5. Послойные расширения: Layered Depth Image хранит несколько точек вдоль луча,
 Multi-Plane Image — стопку плоскостей на фиксированных глубинах.</figcaption></figure>
-<p>Свежий поворот той же идеи — <strong>point map</strong> (DUSt3R, Wang et al., 2024): сеть предсказывает для
+<p>Свежий поворот той же идеи — <strong>point map</strong> (DUSt3R, <a href="https://arxiv.org/abs/2312.14132">Wang et al., 2024</a>): сеть предсказывает для
 каждого пикселя не глубину в системе своей камеры, а трёхмерную точку в <em>общей</em> системе координат
 для пары кадров. Тем самым стирается граница между оценкой глубины и оценкой относительной позы
 камер: поза «зашита» в согласованность точек. К этому подходу курс вернётся в конце.</p>
@@ -420,7 +419,7 @@ Multi-Plane Image — стопку плоскостей на фиксирова�
 <p><strong>Порядок точек не несёт смысла.</strong> Облако — множество, а не массив. Любой метод обработки обязан
 давать один и тот же ответ при перестановке точек, и свёртка по массиву этому требованию не
 удовлетворяет. Из этой простой инвариантности выросла целая линия архитектур, начиная с PointNet
-(Qi et al., 2017), где симметричная агрегация (max-pooling по точкам) обеспечивает инвариантность
+(<a href="https://arxiv.org/abs/1612.00593">Qi et al., 2017</a>), где симметричная агрегация (max-pooling по точкам) обеспечивает инвариантность
 к перестановкам. Отсюда же ответ на частый вопрос «почему нельзя просто отсортировать точки»:
 сортировка неустойчива — малое смещение одной точки меняет порядок скачком.</p>
 <p><strong>Связности нет.</strong> Облако не знает, какие точки соседние. Почти любая обработка начинается с
@@ -475,8 +474,7 @@ $$</p>
 контрольных точек задаёт форму.</figcaption></figure>
 <p>NURBS — рациональное обобщение с весами и узловыми векторами — язык промышленного CAD: поверхность
 там <em>точная</em>, а не аппроксимированная треугольниками; для показа на экране её тесселируют.</p>
-<p>Ту же идею реализуют нейросетью: $f_\theta(u,v)$ с обучаемыми параметрами $\theta$ (AtlasNet,
-Groueix et al., 2018). Свойства параметризации показательны для нашей таблицы: сэмплировать точки
+<p>Ту же идею реализуют нейросетью: $f_\theta(u,v)$ с обучаемыми параметрами $\theta$ (AtlasNet, <a href="https://arxiv.org/abs/1802.05384">Groueix et al., 2018</a>). Свойства параметризации показательны для нашей таблицы: сэмплировать точки
 на поверхности тривиально — достаточно взять случайные $(u, v)$; а вот ответить, лежит ли данная
 точка $\mathbf{q}$ внутри объекта, почти невозможно без дополнительных построений.</p>
 <h3 id="sec-1-4-7-tsdf">1.4.7. Воксели, октодеревья, TSDF</h3>
@@ -491,9 +489,9 @@ Groueix et al., 2018). Свойства параметризации показ�
 <p>Очевидное лечение — адаптивное разрешение: мелкие ячейки только у поверхности. <strong>Октодерево</strong>
 рекурсивно делит куб на восемь, пока ячейка пересекает поверхность; память падает до $O(n^2 \log n)$.
 Разреженные воксельные свёртки развивают ту же идею: считать только там, где что-то есть.</p>
-<p>Отдельно стоит хэш-сетка признаков (Instant-NGP, Müller et al., 2022; лекция 10) — это <strong>не</strong> дерево. Там берут несколько регулярных решёток разного разрешения и хранят обучаемые векторы в таблицах фиксированного размера, куда индексируют хэшем; коллизии допускаются и разрешаются обучением. Экономия получается не от того, что ячейки дробятся у поверхности, а от того, что таблица заведомо меньше решётки. Поэтому и оценка памяти у неё своя, задаваемая размером таблицы, а не $O(n^2)$.</p>
+<p>Отдельно стоит хэш-сетка признаков (Instant-NGP, <a href="https://arxiv.org/abs/2201.05989">Müller et al., 2022</a>; лекция 10) — это <strong>не</strong> дерево. Там берут несколько регулярных решёток разного разрешения и хранят обучаемые векторы в таблицах фиксированного размера, куда индексируют хэшем; коллизии допускаются и разрешаются обучением. Экономия получается не от того, что ячейки дробятся у поверхности, а от того, что таблица заведомо меньше решётки. Поэтому и оценка памяти у неё своя, задаваемая размером таблицы, а не $O(n^2)$.</p>
 <figure><img alt="Плотная сетка и адаптивная" src="img/lecture01_octree_vs_dense.png" /><figcaption>Рис. 1.11. Двумерный аналог: плотная сетка хранит все ячейки, квадродерево — мелкие только у кривой.</figcaption></figure>
-<p>Особый и очень важный случай — <strong>TSDF</strong> (truncated signed distance function; Curless &amp; Levoy, 1996).
+<p>Особый и очень важный случай — <strong>TSDF</strong> (truncated signed distance function; <a href="https://doi.org/10.1145/237170.237269">Curless &amp; Levoy, 1996</a>).
 Здесь понадобится величина, которую мы подробно разберём в § 1.4.8: <strong>знаковое расстояние</strong> — это расстояние от точки до ближайшей точки поверхности, взятое со знаком минус внутри тела и плюс снаружи. Знак нужен именно для того, чтобы по одному числу было видно, с какой стороны поверхности мы находимся, и чтобы сама поверхность оказалась нулевым уровнем.</p>
 <p>В каждой ячейке хранится не занятость, а усечённое знаковое расстояние до поверхности вместе с весом
 уверенности. Новая карта глубины вливается в объём взвешенным усреднением:</p>
@@ -502,7 +500,7 @@ D \leftarrow \frac{W D + w\, d}{W + w}, \qquad W \leftarrow W + w,
 $$</p>
 <p>где $d$ — расстояние, наблюдённое в новом кадре (усечённое до $\pm\delta$), $w$ — его вес.
 Усреднение подавляет шум сенсора, а усечение не даёт далёким поверхностям мешать друг другу.
-На TSDF построен KinectFusion (Newcombe et al., 2011) и большинство систем плотной реконструкции
+На TSDF построен KinectFusion (<a href="https://doi.org/10.1109/ISMAR.2011.6092378">Newcombe et al., 2011</a>) и большинство систем плотной реконструкции
 в реальном времени; к ней вернёмся в лекциях 12 и 15.</p>
 <figure><img alt="TSDF-слияние" src="img/lecture01_tsdf_fusion.png" /><figcaption>Рис. 1.12. TSDF: кадры с нескольких камер усредняются в объём, поверхность извлекается
 как нулевой уровень.</figcaption></figure>
@@ -515,8 +513,7 @@ $$</p>
 <p>Строго говоря, нулевой уровень — частный случай: поверхностью объявляют множество
 $\{f=c\}$, и $c$ зависит от того, что именно хранит поле.</p>
 <p>Способ задать $f$ — отдельный вопрос от того, что она означает. Её можно хранить таблицей
-на сетке, задать аналитически (примитивы и их булевы комбинации) или нейросетью (DeepSDF —
-Park et al., 2019; Occupancy Networks — Mescheder et al., 2019). Таблица на сетке сама по себе
+на сетке, задать аналитически (примитивы и их булевы комбинации) или нейросетью (DeepSDF — <a href="https://arxiv.org/abs/1901.05103">Park et al., 2019</a>; Occupancy Networks — <a href="https://arxiv.org/abs/1812.03828">Mescheder et al., 2019</a>). Таблица на сетке сама по себе
 не делает поле TSDF: в ячейках может лежать занятость, плотность, неусечённое знаковое расстояние
 или что угодно ещё. TSDF — это конкретный выбор: знаковое расстояние, <strong>усечённое</strong> на несколько
 ячеек около поверхности, и в RGB-D-конвейерах туда обычно интегрируют проективное расстояние
@@ -560,14 +557,14 @@ $\tfrac12$ по умолчанию.</p>
 выигрыш: значение говорит, насколько далеко поверхность, градиент — в какую сторону; отсюда
 нормали $\mathbf{n} = \nabla f$, безопасный шаг при трассировке (sphere tracing) и честная
 линейная интерполяция при извлечении сетки. Эйкональная регуляризация позволяет учить SDF прямо
-по сырым точкам с нормалями, без эталонных расстояний (IGR, Gropp et al., 2020).</p>
+по сырым точкам с нормалями, без эталонных расстояний (IGR, <a href="https://arxiv.org/abs/2002.10099">Gropp et al., 2020</a>).</p>
 <p><em>Требования к данным.</em> Здесь легко смешать свойство представления со способом обучения, поэтому
 разделим. Если размечать поле <strong>напрямую</strong>, по эталонной модели, то определённость «внутри
 и снаружи» нужна, а значит, нужны замкнутые (watertight) эталоны: так учат DeepSDF по эталонному
 SDF и Occupancy Networks по эталонной занятости. Для незамкнутых поверхностей в этой схеме берут
 беззнаковое расстояние.</p>
-<p>Но сама по себе SDF замкнутых эталонов не требует. IGR (Gropp et al., 2020) учится по сырым точкам
-с нормалями, а NeuS (Wang et al., 2021) и родственные методы — вообще по многовидовым изображениям,
+<p>Но сама по себе SDF замкнутых эталонов не требует. IGR (<a href="https://arxiv.org/abs/2002.10099">Gropp et al., 2020</a>) учится по сырым точкам
+с нормалями, а NeuS (<a href="https://arxiv.org/abs/2106.10689">Wang et al., 2021</a>) и родственные методы — вообще по многовидовым изображениям,
 через дифференцируемый рендеринг. Так что «учиться по фотографиям» не является исключительным
 свойством поля плотности.</p>
 <p>Поле плотности (§ 1.4.9) в NeRF выбрано не потому, что больше нечем учиться по снимкам, а потому
@@ -586,7 +583,7 @@ $\sigma(\mathbf{p}) \geq 0$. То же представление оказало
 рендеринга — потому что оно гладко и дифференцируемо всюду, без выделенной поверхности.</p>
 <figure><img alt="Поле плотности" src="img/lecture01_density_cloud.png" /><figcaption>Рис. 1.14. Та же кружка как поле плотности: выделенной поверхности нет, есть «сколько вещества»
 в каждой точке пространства.</figcaption></figure>
-<p><strong>NeRF</strong> (Mildenhall et al., 2020) задаёт сцену функцией $(\mathbf{p}, \mathbf{d}) \mapsto
+<p><strong>NeRF</strong> (<a href="https://arxiv.org/abs/2003.08934">Mildenhall et al., 2020</a>) задаёт сцену функцией $(\mathbf{p}, \mathbf{d}) \mapsto
 (\sigma, \mathbf{c})$: плотность и цвет, зависящий ещё и от направления взгляда $\mathbf{d}$,
 закодированы в многослойном перцептроне. Цвет пикселя получается интегрированием вдоль луча
 $\mathbf{r}(t) = \mathbf{o} + t\mathbf{d}$; в дискретной форме с отсчётами $t_i$ и промежутками
@@ -600,7 +597,7 @@ $$</p>
 представление. NeRF существует как метод ровно потому, что рендеринг сделали дифференцируемым;
 детали объёмного рендеринга — лекция 9.</p>
 <h3 id="sec-1-4-10">1.4.10. Гауссовы сплаты</h3>
-<p><strong>3D Gaussian Splatting</strong> (Kerbl et al., 2023) возвращается к явному представлению: сцена — набор
+<p><strong>3D Gaussian Splatting</strong> (<a href="https://arxiv.org/abs/2308.04079">Kerbl et al., 2023</a>) возвращается к явному представлению: сцена — набор
 трёхмерных гауссиан, каждая с центром $\boldsymbol\mu_k$, ковариацией $\Sigma_k$, непрозрачностью
 $\alpha_k$ и цветом (коэффициенты сферических гармоник, чтобы цвет зависел от направления).</p>
 <figure><img alt="Гауссовы сплаты" src="img/lecture01_splats_only.png" /><figcaption>Рис. 1.15. Кружка как набор анизотропных гауссиан — ориентированное облако точек, у которого
@@ -789,8 +786,7 @@ $$</p>
 Полость чашки, в которую наливают чай, топологически ничем не отличается от вмятины на сфере.</p>
 <h3 id="sec-1-5-2">1.5.2. Следствие для методов реконструкции и генерации</h3>
 <p>Многие методы восстанавливают форму, <strong>деформируя шаблон</strong>: берут сферу и двигают её вершины,
-пока проекции не совпадут с наблюдениями (Pixel2Mesh, Wang et al., 2018; AtlasNet с одной
-заплатой). Из инвариантности рода следует, что такой метод не построит кружку с ручкой <em>никогда</em> —
+пока проекции не совпадут с наблюдениями (Pixel2Mesh, <a href="https://arxiv.org/abs/1804.01654">Wang et al., 2018</a>; AtlasNet с одной заплатой). Из инвариантности рода следует, что такой метод не построит кружку с ручкой <em>никогда</em> —
 не «построит плохо», а принципиально не сможет: род сферы равен нулю и деформацией не меняется.</p>
 <p>Обходные пути существуют: несколько заплат (AtlasNet), шаблон подходящего рода, операции
 явного изменения связности. Все они неустойчивы или требуют знать топологию заранее. Именно здесь
@@ -817,8 +813,7 @@ $$</p>
 </ul>
 <h3 id="sec-1-6-2-marching-cubes">1.6.2. Marching cubes</h3>
 <p>Извлечение сетки из скалярного поля на регулярной решётке — самый частый переход в курсе; он
-понадобится и для TSDF, и для нейронных SDF, и для NeRF. Алгоритм marching cubes (Lorensen &amp;
-Cline, 1987) обходит ячейки решётки; в каждой ячейке знаки поля в восьми углах определяют один
+понадобится и для TSDF, и для нейронных SDF, и для NeRF. Алгоритм marching cubes (<a href="https://doi.org/10.1145/37402.37422">Lorensen &amp; Cline, 1987</a>) обходит ячейки решётки; в каждой ячейке знаки поля в восьми углах определяют один
 из $2^8 = 256$ случаев (по симметрии — 15 базовых), для которых заранее заготовлены треугольники.
 Положение вершины на ребре ячейки между углами $a$ и $b$ находится линейной интерполяцией:</p>
 <p>$$
@@ -848,12 +843,12 @@ $$</p>
 <h3 id="sec-1-6-3">1.6.3. Реконструкция поверхности по облаку точек</h3>
 <p>Обратная задача в миниатюре: дано облако точек с шумом — построить поверхность. Три семейства
 методов:</p>
-<p><strong>Пуассоновская реконструкция</strong> (Kazhdan et al., 2006) ищет индикаторную функцию $\chi$ объекта,
+<p><strong>Пуассоновская реконструкция</strong> (<a href="https://doi.org/10.2312/SGP/SGP06/061-070">Kazhdan et al., 2006</a>) ищет индикаторную функцию $\chi$ объекта,
 градиент которой совпадает с полем ориентированных нормалей $\mathbf{V}$, решая уравнение Пуассона
 $\Delta \chi = \nabla \cdot \mathbf{V}$; поверхность извлекается как уровень $\chi$. Метод глобальный
 и всегда даёт замкнутую поверхность — в том числе там, где точек не было. Это не ошибка, а свойство:
 метод «галлюцинирует» геометрию в дырах, и на практике результат обрезают по плотности точек.</p>
-<p><strong>Ball pivoting</strong> (Bernardini et al., 1999) катит шар заданного радиуса по точкам и соединяет те
+<p><strong>Ball pivoting</strong> (<a href="https://doi.org/10.1109/2945.817351">Bernardini et al., 1999</a>) катит шар заданного радиуса по точкам и соединяет те
 тройки, на которые он опирается. Метод локальный: ничего не выдумывает, честно оставляет дыры там,
 где данных нет, но чувствителен к выбору радиуса относительно плотности точек.</p>
 <p><strong>Методы вычислительной геометрии</strong> — триангуляция Делоне, альфа-формы — не требуют нормалей
@@ -871,7 +866,7 @@ $(1-\sqrt{u})\,A + \sqrt{u}(1-v)\,B + \sqrt{u}\,v\,C$ распределена �
 скучиваются у одной вершины.</p>
 <p><strong>Сетка → SDF.</strong> Модуль — расстояние до ближайшего треугольника. Знак — либо по нормали ближайшей
 точки (быстро, ошибается в вогнутых складках), либо по обобщённому winding number
-(Jacobson et al., 2013) — надёжно и на несовершенных сетках, но дороже.</p>
+(<a href="https://doi.org/10.1145/2461912.2461916">Jacobson et al., 2013</a>) — надёжно и на несовершенных сетках, но дороже.</p>
 <p><strong>Облако → SDF напрямую не получается.</strong> Расстояние до ближайшей точки облака — это беззнаковое
 расстояние до <strong>выборки</strong>, а не до поверхности: оно неотрицательно и обращается в ноль на самих
 отсчётах, а не на восстановленной поверхности между ними. Ни знака, ни понятия внутренности
@@ -882,8 +877,7 @@ $(1-\sqrt{u})\,A + \sqrt{u}(1-v)\,B + \sqrt{u}\,v\,C$ распределена �
 (например, в <code>trimesh.proximity.signed_distance</code>) — наоборот. Перепутанный знак — классический
 источник вывернутых наизнанку моделей.</p>
 <h3 id="sec-1-6-5">1.6.5. Дифференцируемые конвертации</h3>
-<p>Две современные идеи. Первая — сделать саму конвертацию дифференцируемой: DMTet (Shen et al.,
-2021) и FlexiCubes (Shen et al., 2023) извлекают сетку из неявного поля так, что градиент
+<p>Две современные идеи. Первая — сделать саму конвертацию дифференцируемой: DMTet (<a href="https://arxiv.org/abs/2111.04276">Shen et al., 2021</a>) и FlexiCubes (<a href="https://arxiv.org/abs/2308.05371">Shen et al., 2023</a>) извлекают сетку из неявного поля так, что градиент
 функции потерь, посчитанной на сетке, проходит обратно в поле. Это позволяет учить представление
 в одном виде, а супервизию брать в другом.</p>
 <p>Вторая — композиция: если прямого перехода нет, собрать его из известных. Так, из гауссовых сплатов
@@ -1129,45 +1123,49 @@ F-score считает долю точек ближе порога $\tau$.</figc
 </ol>
 <hr />
 <h2 id="sec-43">Литература</h2>
-<p><strong>Учебники</strong>
-* R. Szeliski. <em>Computer Vision: Algorithms and Applications</em>, 2nd ed., 2022 — гл. 1, 13, 14.
-* R. Hartley, A. Zisserman. <em>Multiple View Geometry in Computer Vision</em>, 2nd ed., 2004 — введение.
-* Y. Ma, S. Soatto, J. Košecká, S. Sastry. <em>An Invitation to 3-D Vision</em>, 2004 — гл. 1.
-* M. Botsch, L. Kobbelt, M. Pauly, P. Alliez, B. Lévy. <em>Polygon Mesh Processing</em>, 2010 — гл. 1.
-* D. Marr. <em>Vision</em>, 1982 — о 2.5D-эскизе.</p>
-<p><strong>Обзоры</strong>
-* A. Tewari et al. Advances in Neural Rendering. <em>Computer Graphics Forum (STAR)</em>, 2022.
-* Y. Xie et al. Neural Fields in Visual Computing and Beyond. <em>Computer Graphics Forum</em>, 2022.
-* H. Kato et al. Differentiable Rendering: A Survey. arXiv:2006.12057, 2020.</p>
-<p><strong>Первоисточники, упомянутые в главе</strong>
-* L. G. Roberts. Machine Perception of Three-Dimensional Solids. PhD thesis, MIT, 1963.
-* J. T. Kajiya. The Rendering Equation. <em>SIGGRAPH</em>, 1986.
-* P. Belhumeur, D. Kriegman, A. Yuille. The Bas-Relief Ambiguity. <em>IJCV</em>, 1999.
-* W. Lorensen, H. Cline. Marching Cubes. <em>SIGGRAPH</em>, 1987.
-* B. Curless, M. Levoy. A Volumetric Method for Building Complex Models from Range Images. <em>SIGGRAPH</em>, 1996.
-* J. Shade et al. Layered Depth Images. <em>SIGGRAPH</em>, 1998.
-* F. Bernardini et al. The Ball-Pivoting Algorithm for Surface Reconstruction. <em>IEEE TVCG</em>, 1999.
-* M. Kazhdan, M. Bolitho, H. Hoppe. Poisson Surface Reconstruction. <em>SGP</em>, 2006.
-* R. Newcombe et al. KinectFusion. <em>ISMAR</em>, 2011.
-* A. Jacobson et al. Robust Inside-Outside Segmentation using Generalized Winding Numbers. <em>SIGGRAPH</em>, 2013.
-* C. Qi et al. PointNet. <em>CVPR</em>, 2017.
-* T. Groueix et al. AtlasNet. <em>CVPR</em>, 2018. · N. Wang et al. Pixel2Mesh. <em>ECCV</em>, 2018.
-* T. Zhou et al. Stereo Magnification (Multi-Plane Images). <em>SIGGRAPH</em>, 2018.
-* J. Park et al. DeepSDF. <em>CVPR</em>, 2019. · L. Mescheder et al. Occupancy Networks. <em>CVPR</em>, 2019.
-* B. Mildenhall et al. NeRF. <em>ECCV</em>, 2020.
-* P. Wang et al. NeuS: Learning Neural Implicit Surfaces by Volume Rendering. <em>NeurIPS</em>, 2021.
-* T. Shen et al. DMTet. <em>NeurIPS</em>, 2021. · T. Shen et al. FlexiCubes. <em>SIGGRAPH</em>, 2023.
-* T. Müller et al. Instant Neural Graphics Primitives. <em>SIGGRAPH</em>, 2022.
-* B. Kerbl et al. 3D Gaussian Splatting. <em>SIGGRAPH</em>, 2023.
-* S. Wang et al. DUSt3R. <em>CVPR</em>, 2024. · J. Wang et al. VGGT. <em>CVPR</em>, 2025.
-* D. Marr, H. K. Nishihara. Representation and Recognition of the Spatial Organization of
-  Three-Dimensional Shapes. <em>Proc. R. Soc. Lond. B</em>, 1978.
-* A. Gropp et al. Implicit Geometric Regularization for Learning Shapes (IGR). <em>ICML</em>, 2020.
-* J. Wu et al. MarrNet: 3D Shape Reconstruction via 2.5D Sketches. <em>NeurIPS</em>, 2017.
-* A. Knapitsch et al. Tanks and Temples. <em>SIGGRAPH</em>, 2017 — F-score для реконструкции сцен.
-* M. Tatarchenko et al. What Do Single-view 3D Reconstruction Networks Learn? <em>CVPR</em>, 2019.
-* L. Bruns, P. Jensfelt. On the Evaluation of RGB-D-based Categorical Pose and Shape Estimation.
-  arXiv:2202.10346, 2022 — о зависимости Chamfer от числа сэмплов.
-* T. S. Newman, H. Yi. A Survey of the Marching Cubes Algorithm. <em>Computers &amp; Graphics</em>, 2006.</p>
+<p><strong>Учебники</strong></p>
+<ul>
+<li>R. Szeliski. <a href="https://szeliski.org/Book/"><em>Computer Vision: Algorithms and Applications</em></a>, 2nd ed., 2022 — гл. 1, 13, 14.</li>
+<li>R. Hartley, A. Zisserman. <a href="https://www.robots.ox.ac.uk/~vgg/hzbook/"><em>Multiple View Geometry in Computer Vision</em></a>, 2nd ed., 2004 — введение.</li>
+<li>Y. Ma, S. Soatto, J. Košecká, S. Sastry. <a href="https://doi.org/10.1007/978-0-387-21779-6"><em>An Invitation to 3-D Vision</em></a>, 2004 — гл. 1.</li>
+<li>M. Botsch, L. Kobbelt, M. Pauly, P. Alliez, B. Lévy. <a href="https://www.pmp-book.org/"><em>Polygon Mesh Processing</em></a>, 2010 — гл. 1.</li>
+<li>D. Marr. <a href="https://mitpress.mit.edu/9780262514620/vision/"><em>Vision</em></a>, 1982 — о 2.5D-эскизе.</li>
+</ul>
+<p><strong>Обзоры</strong></p>
+<ul>
+<li>A. Tewari et al. <a href="https://arxiv.org/abs/2111.05849">Advances in Neural Rendering</a>. <em>Computer Graphics Forum (STAR)</em>, 2022.</li>
+<li>Y. Xie et al. <a href="https://arxiv.org/abs/2111.11426">Neural Fields in Visual Computing and Beyond</a>. <em>Computer Graphics Forum</em>, 2022.</li>
+<li>H. Kato et al. <a href="https://arxiv.org/abs/2006.12057">Differentiable Rendering: A Survey</a>. arXiv:2006.12057, 2020.</li>
+</ul>
+<p><strong>Первоисточники, упомянутые в главе</strong></p>
+<ul>
+<li>L. G. Roberts. <a href="https://dspace.mit.edu/handle/1721.1/11589">Machine Perception of Three-Dimensional Solids</a>. PhD thesis, MIT, 1963.</li>
+<li>J. T. Kajiya. <a href="https://doi.org/10.1145/15922.15902">The Rendering Equation</a>. <em>SIGGRAPH</em>, 1986.</li>
+<li>D. Marr, H. K. Nishihara. <a href="https://doi.org/10.1098/rspb.1978.0020">Representation and Recognition of the Spatial Organization of Three-Dimensional Shapes</a>. <em>Proc. R. Soc. Lond. B</em>, 1978.</li>
+<li>P. Belhumeur, D. Kriegman, A. Yuille. <a href="https://doi.org/10.1023/A:1008154927611">The Bas-Relief Ambiguity</a>. <em>IJCV</em>, 1999.</li>
+<li>W. Lorensen, H. Cline. <a href="https://doi.org/10.1145/37402.37422">Marching Cubes</a>. <em>SIGGRAPH</em>, 1987.</li>
+<li>T. S. Newman, H. Yi. <a href="https://doi.org/10.1016/j.cag.2006.07.021">A Survey of the Marching Cubes Algorithm</a>. <em>Computers &amp; Graphics</em>, 2006.</li>
+<li>B. Curless, M. Levoy. <a href="https://doi.org/10.1145/237170.237269">A Volumetric Method for Building Complex Models from Range Images</a>. <em>SIGGRAPH</em>, 1996.</li>
+<li>R. Newcombe et al. <a href="https://doi.org/10.1109/ISMAR.2011.6092378">KinectFusion</a>. <em>ISMAR</em>, 2011.</li>
+<li>J. Shade et al. <a href="https://doi.org/10.1145/280814.280882">Layered Depth Images</a>. <em>SIGGRAPH</em>, 1998.</li>
+<li>T. Zhou et al. <a href="https://arxiv.org/abs/1805.09817">Stereo Magnification (Multi-Plane Images)</a>. <em>SIGGRAPH</em>, 2018.</li>
+<li>F. Bernardini et al. <a href="https://doi.org/10.1109/2945.817351">The Ball-Pivoting Algorithm for Surface Reconstruction</a>. <em>IEEE TVCG</em>, 1999.</li>
+<li>M. Kazhdan, M. Bolitho, H. Hoppe. <a href="https://doi.org/10.2312/SGP/SGP06/061-070">Poisson Surface Reconstruction</a>. <em>SGP</em>, 2006.</li>
+<li>A. Jacobson et al. <a href="https://doi.org/10.1145/2461912.2461916">Robust Inside-Outside Segmentation using Generalized Winding Numbers</a>. <em>SIGGRAPH</em>, 2013.</li>
+<li>C. Qi et al. <a href="https://arxiv.org/abs/1612.00593">PointNet</a>. <em>CVPR</em>, 2017.</li>
+<li>T. Groueix et al. <a href="https://arxiv.org/abs/1802.05384">AtlasNet</a>. <em>CVPR</em>, 2018. · N. Wang et al. <a href="https://arxiv.org/abs/1804.01654">Pixel2Mesh</a>. <em>ECCV</em>, 2018.</li>
+<li>J. Park et al. <a href="https://arxiv.org/abs/1901.05103">DeepSDF</a>. <em>CVPR</em>, 2019. · L. Mescheder et al. <a href="https://arxiv.org/abs/1812.03828">Occupancy Networks</a>. <em>CVPR</em>, 2019.</li>
+<li>A. Gropp et al. <a href="https://arxiv.org/abs/2002.10099">Implicit Geometric Regularization for Learning Shapes (IGR)</a>. <em>ICML</em>, 2020.</li>
+<li>B. Mildenhall et al. <a href="https://arxiv.org/abs/2003.08934">NeRF</a>. <em>ECCV</em>, 2020.</li>
+<li>P. Wang et al. <a href="https://arxiv.org/abs/2106.10689">NeuS: Learning Neural Implicit Surfaces by Volume Rendering</a>. <em>NeurIPS</em>, 2021.</li>
+<li>T. Shen et al. <a href="https://arxiv.org/abs/2111.04276">DMTet</a>. <em>NeurIPS</em>, 2021. · T. Shen et al. <a href="https://arxiv.org/abs/2308.05371">FlexiCubes</a>. <em>SIGGRAPH</em>, 2023.</li>
+<li>T. Müller et al. <a href="https://arxiv.org/abs/2201.05989">Instant Neural Graphics Primitives</a>. <em>SIGGRAPH</em>, 2022.</li>
+<li>B. Kerbl et al. <a href="https://arxiv.org/abs/2308.04079">3D Gaussian Splatting</a>. <em>SIGGRAPH</em>, 2023.</li>
+<li>S. Wang et al. <a href="https://arxiv.org/abs/2312.14132">DUSt3R</a>. <em>CVPR</em>, 2024. · J. Wang et al. <a href="https://arxiv.org/abs/2503.11651">VGGT</a>. <em>CVPR</em>, 2025.</li>
+<li>J. Wu et al. <a href="https://arxiv.org/abs/1711.03129">MarrNet: 3D Shape Reconstruction via 2.5D Sketches</a>. <em>NeurIPS</em>, 2017.</li>
+<li>A. Knapitsch et al. <a href="https://doi.org/10.1145/3072959.3073599">Tanks and Temples</a>. <em>SIGGRAPH</em>, 2017 — F-score для реконструкции сцен.</li>
+<li>M. Tatarchenko et al. <a href="https://arxiv.org/abs/1905.03678">What Do Single-view 3D Reconstruction Networks Learn?</a> <em>CVPR</em>, 2019.</li>
+<li>L. Bruns, P. Jensfelt. <a href="https://arxiv.org/abs/2202.10346">On the Evaluation of RGB-D-based Categorical Pose and Shape Estimation</a>. arXiv:2202.10346, 2022 — о зависимости Chamfer от числа сэмплов.</li>
+</ul>
 </main>
 </div>
