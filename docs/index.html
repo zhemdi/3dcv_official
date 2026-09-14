@@ -1,0 +1,80 @@
+<title>3D компьютерное зрение и графика — конспекты</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --navy:#0B0026; --blue:#1D00C3; --violet:#6A3FEA; --orange:#E97132;
+  --ink:#1A1A22; --muted:#6B6B76; --line:#E4E5EE; --bg:#FFFFFF; --soft:#F7F7FA;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:17px/1.72 "Georgia","Charter","PT Serif",serif;
+  -webkit-text-size-adjust:100%}
+.wrap{display:grid;grid-template-columns:250px minmax(0,760px);gap:56px;
+  justify-content:center;padding:0 24px 120px}
+nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;
+  padding:40px 0 40px;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+nav .home{display:inline-block;color:var(--muted);text-decoration:none;margin-bottom:18px}
+nav .home:hover{color:var(--blue)}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:3px 0}
+nav a:hover{color:var(--blue)}
+nav a.h2{font-weight:600;color:var(--navy);margin-top:12px}
+nav a.h3{padding-left:14px;font-size:13px}
+main{padding-top:40px;min-width:0}
+h1{font:600 34px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--navy);margin:0 0 8px}
+h2{font:600 25px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--navy);margin:56px 0 16px;padding-top:14px;border-top:2px solid var(--line)}
+h3{font:600 19px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--blue);margin:34px 0 12px}
+p{margin:0 0 16px}
+a{color:var(--blue)}
+strong{font-weight:600;color:var(--navy)}
+code{font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:var(--soft);padding:1px 5px;border-radius:4px}
+blockquote{margin:22px 0;padding:14px 20px;background:var(--soft);
+  border-left:3px solid var(--violet);border-radius:0 6px 6px 0}
+blockquote p:last-child{margin-bottom:0}
+ul,ol{margin:0 0 16px;padding-left:24px}
+li{margin:0 0 7px}
+figure{margin:30px 0}
+figure img{display:block;width:100%;height:auto;border-radius:6px}
+figcaption{margin-top:10px;color:var(--muted);
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+table{width:100%;border-collapse:collapse;margin:22px 0;
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--navy);font-weight:600;border-bottom:2px solid var(--line)}
+tr:hover td{background:var(--soft)}
+hr{border:0;border-top:1px solid var(--line);margin:44px 0}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;padding:4px 0}
+.lead{color:var(--muted);font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+  margin-bottom:32px}
+.course{color:var(--muted);font:13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+@media (max-width:1080px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  nav{position:static;max-height:none;border-bottom:1px solid var(--line);
+    padding:24px 0;margin-bottom:8px}
+  nav a.h3{display:none}
+}
+@media print{
+  nav{display:none} .wrap{display:block} main{padding:0}
+  h2{break-before:page} figure{break-inside:avoid}
+}
+
+.wrap{grid-template-columns:minmax(0,760px)}
+.card{display:block;padding:22px 24px;border:1px solid var(--line);border-radius:10px;
+  margin-bottom:16px;text-decoration:none;color:inherit}
+.card:hover{border-color:var(--blue);background:var(--soft)}
+.card b{display:block;font:600 20px/1.3 system-ui,sans-serif;color:var(--navy);margin-bottom:6px}
+.card span{color:var(--muted);font:15px/1.5 system-ui,sans-serif}
+</style>
+<div class="wrap"><main>
+<div class="course">МГУ, факультет искусственного интеллекта</div>
+<h1>3D компьютерное зрение и графика</h1>
+<p class="lead">Конспекты лекций в формате учебника. Текст соответствует прочитанным
+лекциям; формулы, рисунки и числа те же, что на слайдах.</p>
+<a class="card" href="chapter01.html"><b>Глава 1</b><span>Введение в трёхмерное компьютерное зрение</span></a>
+<a class="card" href="chapter02.html"><b>Глава 2</b><span>Геометрия: от линейной алгебры к SO(3)</span></a>
+</main></div>
