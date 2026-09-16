@@ -29,6 +29,8 @@ h3{font:600 19px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;
   color:var(--blue);margin:34px 0 12px}
 p{margin:0 0 16px}
 a{color:var(--blue)}
+main a[href*="#sec-"]{text-decoration:none;white-space:nowrap}
+main a[href*="#sec-"]:hover{text-decoration:underline}
 strong{font-weight:600;color:var(--navy)}
 code{font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
   background:var(--soft);padding:1px 5px;border-radius:4px}
@@ -61,6 +63,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;padding:4px 0}
 @media print{
   nav{display:none} .wrap{display:block} main{padding:0}
   h2{break-before:page} figure{break-inside:avoid}
+  main a[href*="#sec-"]{color:inherit}
 }
 
 .wrap{grid-template-columns:minmax(0,760px)}
