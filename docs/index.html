@@ -30,6 +30,12 @@ h3{font:600 19px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;
 p{margin:0 0 16px}
 a{color:var(--blue)}
 main a[href*="#sec-"]{text-decoration:none;white-space:nowrap}
+a.gloss{text-decoration:underline dotted;text-underline-offset:3px;position:relative}
+a.gloss:hover::after,a.gloss:focus-visible::after{content:attr(data-tip);position:absolute;left:0;
+  top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(340px,78vw);padding:8px 11px;
+  background:var(--navy);color:#fff;border-radius:6px;box-shadow:0 4px 14px rgba(11,0,38,.22);
+  font:13.5px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;white-space:normal;
+  text-decoration:none;pointer-events:none}
 main a[href*="#sec-"]:hover{text-decoration:underline}
 strong{font-weight:600;color:var(--navy)}
 code{font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
