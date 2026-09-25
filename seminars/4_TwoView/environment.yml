@@ -1,0 +1,15 @@
+name: seminar4_3dcv
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - matplotlib
+  - opencv>=4.5      # SIFT_create, USAC_MAGSAC, stereoRectify, StereoSGBM
+  - plotly           # интерактивные 3D-облака точек
+  - jupyterlab
+  - ipykernel
+  - ipywidgets
+  - nbformat         # нужен plotly для fig.show() в Jupyter
+  - nbconvert        # запуск ноутбука из командной строки

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Epipolar Geometry Explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #121213; --panel: #19191b; --line: #2c2d31; --text: #e8e8ea; --muted: #9b9da4;
+    --accent: #ffd21f; --btn: #26272b; --btn-h: #303137; --on: #3b3d45;
+    --ray: #ffd21f; --base: #4fc3f7; --pt: #ff8a30; --epi: #ff4fa3;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #app { display: flex; height: 100vh; }
+  #viewport { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+  #viewport > canvas { display: block; }
+  .labels { position: absolute; inset: 0; pointer-events: none; }
+  #hint { position: absolute; top: 10px; left: 12px; color: var(--muted); font-size: 12px;
+    background: rgba(0,0,0,.45); padding: 6px 9px; border-radius: 6px; pointer-events: none; max-width: 70%; }
+  #hint b { color: var(--text); font-weight: 600; }
+  #warn { position: absolute; top: 10px; right: 12px; color: #ffb4b4; background: rgba(60,0,0,.6);
+    padding: 6px 9px; border-radius: 6px; font-size: 12px; display: none; pointer-events: none; }
+
+  .inset { position: absolute; bottom: 12px; width: clamp(170px, 25vw, 360px); z-index: 2; }
+  #insetL { left: 12px; } #insetR { right: 12px; }
+  .inset-head { font-size: 12px; color: var(--muted); margin-bottom: 4px; display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden;
+    text-shadow: 0 0 4px #000; }
+  .inset-head .tag { color: var(--text); font-weight: 600; }
+  .inset-img { position: relative; aspect-ratio: 4 / 3; outline: 1px solid #555; }
+  .inset-img canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+
+  .lbl span { position: relative; left: 13px; top: -12px; color: #fff; white-space: nowrap;
+    font: italic 17px "Times New Roman", Times, serif; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 6px #000; }
+  .lbl b { font-style: normal; font-weight: 700; }
+  .lbl sub { font-size: 70%; }
+  .lbl.axis span { font-size: 15px; left: 0; top: 0; }
+  .lbl.small span { font-size: 14px; left: 8px; top: -8px; }
+  .lbl.cam span { font: 600 11px system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase;
+    color: #cfd2da; left: 0; top: 22px; }
+  .lbl.base span { color: #bfe9ff; left: 0; top: 16px; }
+
+  #panel { width: 350px; flex: none; background: var(--panel); border-left: 1px solid var(--line);
+    overflow-y: auto; padding: 14px 16px 30px; }
+  #panel h1 { font-size: 17px; margin: 0 0 2px; }
+  #panel .sub { color: var(--muted); margin: 0 0 8px; }
+  section { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 0 0 8px; }
+  h3 { font-size: 12px; font-weight: 600; margin: 10px 0 6px; color: #c9cbd1; }
+  button { background: var(--btn); color: var(--text); border: 1px solid var(--line); border-radius: 6px;
+    padding: 5px 8px; font: inherit; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  button:hover { background: var(--btn-h); }
+  button:active { transform: translateY(1px); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .row > button { flex: 1; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; margin: 6px 0; }
+  .seg button { flex: 1; border: 0; border-radius: 0; border-right: 1px solid var(--line); background: transparent; }
+  .seg button:last-child { border-right: 0; }
+  .seg button.on { background: var(--on); color: #fff; box-shadow: inset 0 -2px 0 var(--accent); }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .pad button { padding: 6px 4px; font-size: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .slider { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin: 8px 0; align-items: center; }
+  .slider input { grid-column: 1 / 3; width: 100%; accent-color: var(--accent); }
+  .slider output { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+  .checks label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  select { width: 100%; background: var(--btn); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px; font: inherit; margin-top: 6px; }
+  #selInfo { color: var(--muted); min-height: 38px; }
+  #selInfo b { color: var(--text); }
+  .muted { color: var(--muted); }
+  .kbd { font: 11px ui-monospace, Menlo, monospace; background: #2a2b30; border: 1px solid #3a3b40; border-radius: 4px; padding: 0 4px; }
+
+  #math .blk { margin: 8px 0; }
+  #math .name { font: italic 15px "Times New Roman", serif; margin-right: 6px; }
+  #math .kv { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  table.mat { border-collapse: collapse; font: 11.5px ui-monospace, Menlo, Consolas, monospace;
+    border-left: 1.5px solid #888; border-right: 1.5px solid #888; border-radius: 3px; }
+  table.mat td { padding: 1px 6px; text-align: right; font-variant-numeric: tabular-nums; }
+  .ok { color: #7ee08a; } .bad { color: #ff9a9a; }
+  .note { color: var(--muted); font-size: 12px; }
+  .legend div { display: flex; gap: 8px; align-items: center; margin: 3px 0; }
+  .sw { width: 22px; height: 4px; border-radius: 2px; flex: none; }
+
+  @media (max-width: 820px) {
+    #app { flex-direction: column; height: auto; }
+    #viewport { height: 64vh; flex: none; }
+    #panel { width: auto; border-left: 0; border-top: 1px solid var(--line); }
+    .inset { width: 44vw; }
+    #hint { display: none; }
+  }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+  <div id="viewport">
+    <div id="hint"><b>Drag</b> orbit · <b>right-drag</b> pan · <b>scroll</b> zoom · <b>click</b> a corner / the W / an image · <b>click a camera</b> to select it, then drag its gizmo</div>
+    <div id="warn"></div>
+    <div class="inset" id="insetL"><div class="inset-head"><span class="tag">Left camera</span> click to pick a pixel</div><div class="inset-img"><canvas></canvas></div></div>
+    <div class="inset" id="insetR"><div class="inset-head"><span class="tag">Right camera</span> click to pick a pixel</div><div class="inset-img"><canvas></canvas></div></div>
+  </div>
+
+  <aside id="panel">
+    <h1>Epipolar geometry</h1>
+    <p class="sub">Two pinhole cameras looking at a 3D “W”.</p>
+
+    <section>
+      <h2>Point</h2>
+      <div id="selInfo"></div>
+      <div class="row"><button id="btnPrev">◀ Prev corner</button><button id="btnNext">Next corner ▶</button><button id="btnClear">Clear</button></div>
+    </section>
+
+    <section>
+      <h2>Camera</h2>
+      <div class="seg" id="segCam"><button data-v="L">Left  <span class="kbd">1</span></button><button data-v="R">Right  <span class="kbd">2</span></button></div>
+      <h3>Drag gizmo</h3>
+      <div class="seg" id="segGizmo"><button data-v="translate">Move <span class="kbd">T</span></button><button data-v="rotate">Rotate <span class="kbd">R</span></button><button data-v="off">Off <span class="kbd">O</span></button></div>
+      <div class="seg" id="segSpace"><button data-v="local">Camera axes</button><button data-v="world">World axes <span class="kbd">Q</span></button></div>
+      <h3>Move (along the camera's own axes)</h3>
+      <div class="pad">
+        <button data-act="ty+">▲ Up</button><button data-act="tz-">Forward</button><button data-act="ty-">▼ Down</button>
+        <button data-act="tx-">◀ Left</button><button data-act="tz+">Backward</button><button data-act="tx+">Right ▶</button>
+      </div>
+      <h3>Rotate</h3>
+      <div class="pad">
+        <button data-act="yaw+">↶ Yaw left</button><button data-act="pitch+">Pitch up</button><button data-act="roll+">⟲ Roll</button>
+        <button data-act="yaw-">Yaw right ↷</button><button data-act="pitch-">Pitch down</button><button data-act="roll-">Roll ⟳</button>
+      </div>
+      <div class="row"><button id="btnAim">Aim at the W</button><button id="btnResetCam">Reset this camera</button></div>
+      <p class="note">Hold a button to repeat.</p>
+    </section>
+
+    <section>
+      <h2>Presets</h2>
+      <div class="grid2" id="presets"></div>
+    </section>
+
+    <section>
+      <h2>Intrinsics &amp; display</h2>
+      <div class="slider"><span>Vertical field of view</span><output id="oFov"></output><input id="fov" type="range" min="25" max="100" step="1"></div>
+      <div class="slider"><span>Image plane distance (drawing only)</span><output id="oDist"></output><input id="dist" type="range" min="0.4" max="2.5" step="0.05"></div>
+      <div class="slider"><span>Image plane opacity</span><output id="oOp"></output><input id="op" type="range" min="0.15" max="1" step="0.05"></div>
+      <div class="checks">
+        <label><input type="checkbox" data-show="planes"> Image planes</label>
+        <label><input type="checkbox" data-show="epiPlane"> Epipolar plane</label>
+        <label><input type="checkbox" data-show="rays"> Rays &amp; baseline</label>
+        <label><input type="checkbox" data-show="frustum"> Frustums</label>
+        <label><input type="checkbox" data-show="insets"> Camera views</label>
+        <label><input type="checkbox" data-show="labels"> Labels</label>
+      </div>
+      <select id="triad">
+        <option value="figure">Camera axes as in the figure (ẑ points backward, ŷ up)</option>
+        <option value="opencv">Camera axes as in OpenCV (ẑ forward, ŷ down)</option>
+      </select>
+    </section>
+
+    <section>
+      <h2>Legend</h2>
+      <div class="legend">
+        <div><span class="sw" style="background:var(--ray)"></span><span>rays <b>x</b><sub>l</sub>, <b>x</b><sub>r</sub> from each optical center to P</span></div>
+        <div><span class="sw" style="background:var(--base)"></span><span>baseline between centers (<b>t</b>, R)</span></div>
+        <div><span class="sw" style="background:var(--epi)"></span><span>epipolar lines</span></div>
+        <div><span class="sw" style="background:#ffe27a;opacity:.5"></span><span>epipolar plane through O<sub>l</sub>, O<sub>r</sub>, P</span></div>
+        <div><span class="sw" style="background:#fff;height:10px;width:10px;border-radius:50%;border:3px solid #fff;background:#000"></span><span>epipoles e<sub>l</sub>, e<sub>r</sub> (baseline ∩ image plane)</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Math</h2>
+      <div id="math"></div>
+      <p class="note">R, <b>t</b> map left-camera coordinates to right-camera coordinates: X<sub>r</sub> = R X<sub>l</sub> + <b>t</b>,
+        in the OpenCV camera frame (x right, y down, z along the optical axis). Pixels: u right, v down, origin top-left,
+        640×480 image, K = [[f,0,c<sub>x</sub>],[0,f,c<sub>y</sub>],[0,0,1]].
+        E = [<b>t</b>]<sub>×</sub>R, F = K<sup>−T</sup>E K<sup>−1</sup>, and u<sub>r</sub><sup>T</sup>F u<sub>l</sub> = 0.</p>
+    </section>
+  </aside>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ───────────────────────────── constants & state ─────────────────────────────
+const IMG_W = 640, IMG_H = 480;
+const W_OUTLINE = [[-2.2,3],[-1.6,3],[-1.0,0.85],[-0.3,3],[0.3,3],[1.0,0.85],[1.6,3],[2.2,3],
+                   [1.3,0],[0.75,0],[0,2.2],[-0.75,0],[-1.3,0]];
+const W_DEPTH = 0.6;
+const W_CENTER = new THREE.Vector3(0, 1.5, 0);
+const COL = { ray: 0xffd21f, base: 0x4fc3f7, pt: 0xff8a30, epi: 0xff4fa3, plane: 0xffe27a, w: 0x8fbf4d,
+              x: 0xff4b4b, y: 0x3fcf5a, z: 0x4a7dff, bg: 0x121213, insetBg: 0x1d1e21, imgBg: 0x5a5a5a };
+const SUB = { L: 'l', R: 'r' };
+const OTHER = { L: 'R', R: 'L' };
+
+const PRESETS = {
+  figure:     { name: 'Like the figure',      L: { p: [-4.6, 0.6, 3.6], t: [0, 1.5, 0] },   R: { p: [4.6, 0.6, 3.6], t: [0, 1.5, 0] } },
+  converging: { name: 'Converging',           L: { p: [-2.6, 2.0, 8.0], t: [0, 1.5, 0] },   R: { p: [2.6, 2.0, 8.0], t: [0, 1.5, 0] } },
+  rectified:  { name: 'Rectified (parallel)', L: { p: [-1.4, 1.5, 8.5], t: [-1.4, 1.5, 0] }, R: { p: [1.4, 1.5, 8.5], t: [1.4, 1.5, 0] } },
+  forward:    { name: 'Forward motion',       L: { p: [0.3, 1.3, 11], t: [0.3, 1.3, 0] },   R: { p: [0.3, 1.3, 7.5], t: [0.3, 1.3, 0] } },
+  vertical:   { name: 'Vertical baseline',    L: { p: [0.4, 0.2, 7.5], t: [0, 1.5, 0] },    R: { p: [-0.4, 4.2, 7.0], t: [0, 1.5, 0] } },
+  general:    { name: 'General pose',         L: { p: [-3.8, 3.6, 6.5], t: [0, 1.5, 0], roll: 10 }, R: { p: [4.2, 0.2, 4.8], t: [0.2, 1.6, 0], roll: -18 } },
+};
+
+const state = {
+  fov: 66, planeDist: 1.5, planeOpacity: 0.75,
+  active: 'L', gizmo: 'translate', space: 'local', triad: 'figure', preset: 'figure',
+  show: { planes: true, epiPlane: true, rays: true, frustum: true, insets: true, labels: true },
+  sel: null,
+};
+
+const $ = (s) => document.querySelector(s);
+const rad = THREE.MathUtils.degToRad;
+
+// ───────────────────────────── tiny 3×3 linear algebra (row-major) ─────────────────────────────
+const mm = (A, B) => A.map((r) => [0, 1, 2].map((j) => r[0] * B[0][j] + r[1] * B[1][j] + r[2] * B[2][j]));
+const tr = (A) => [0, 1, 2].map((i) => [0, 1, 2].map((j) => A[j][i]));
+const mv = (A, v) => A.map((r) => r[0] * v[0] + r[1] * v[1] + r[2] * v[2]);
+const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const scl = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const norm = (a) => Math.hypot(a[0], a[1], a[2]);
+const skew = (t) => [[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]];
+const fro = (A) => Math.hypot(...A.flat());
+const v3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+const arr = (v) => [v.x, v.y, v.z];
+
+function intr() {
+  const f = (IMG_H / 2) / Math.tan(rad(state.fov) / 2), cx = IMG_W / 2, cy = IMG_H / 2;
+  return { f, cx, cy, K: [[f, 0, cx], [0, f, cy], [0, 0, 1]], Ki: [[1 / f, 0, -cx / f], [0, 1 / f, -cy / f], [0, 0, 1]] };
+}
+
+// ───────────────────────────── renderer / scene ─────────────────────────────
+const viewportEl = $('#viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.autoClear = false;
+viewportEl.prepend(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.domElement.className = 'labels';
+viewportEl.insertBefore(labelRenderer.domElement, $('#insetL'));
+
+const scene = new THREE.Scene();
+const worldCam = new THREE.PerspectiveCamera(45, 1, 0.05, 500);
+worldCam.position.set(0.6, 4.6, 16.5);
+const orbit = new OrbitControls(worldCam, renderer.domElement);
+orbit.target.set(0, 1.2, 1.8);
+orbit.enableDamping = true;
+orbit.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 1.7));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(3, 8, 7);
+scene.add(sun);
+
+// Things that are part of the "real" scene (seen by the cameras).
+const sceneGroup = new THREE.Group();
+scene.add(sceneGroup);
+sceneGroup.add(new THREE.GridHelper(24, 24, 0x3c3c3c, 0x2a2a2a));
+
+const wShape = new THREE.Shape(W_OUTLINE.map(([x, y]) => new THREE.Vector2(x, y)));
+const wGeo = new THREE.ExtrudeGeometry(wShape, { depth: W_DEPTH, bevelEnabled: false });
+wGeo.translate(0, 0, -W_DEPTH / 2);
+const wMesh = new THREE.Mesh(wGeo, new THREE.MeshStandardMaterial({
+  color: COL.w, roughness: 0.75, metalness: 0, flatShading: true,
+  polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
+sceneGroup.add(wMesh);
+sceneGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(wGeo, 15), new THREE.LineBasicMaterial({ color: 0x23351a })));
+
+// Clickable corners (shown only in the 3D overview, not in the camera images).
+const cornerGroup = new THREE.Group();
+scene.add(cornerGroup);
+const corners = [];
+const cornerGeo = new THREE.SphereGeometry(0.065, 20, 14);
+[[0, W_DEPTH / 2], [1, -W_DEPTH / 2]].forEach(([back, z]) => W_OUTLINE.forEach(([x, y], i) => {
+  const m = new THREE.Mesh(cornerGeo, new THREE.MeshStandardMaterial({ color: 0xf0f0f0, emissive: 0x202020 }));
+  m.position.set(x, y, z);
+  m.userData = { idx: corners.length, name: 'ABCDEFGHIJKLM'[i] + (back ? '′' : ''), face: back ? 'back' : 'front' };
+  cornerGroup.add(m);
+  corners.push(m);
+}));
+
+// ───────────────────────────── helpers: thick arrows, labels ─────────────────────────────
+const UP = new THREE.Vector3(0, 1, 0);
+const cylGeo = new THREE.CylinderGeometry(1, 1, 1, 12, 1);
+const coneGeo = new THREE.ConeGeometry(1, 1, 18);
+const _d = new THREE.Vector3(), _q = new THREE.Quaternion();
+
+function makeArrow(color, r, head = true, overlay = false) {
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: overlay });
+  const g = new THREE.Group();
+  const shaft = new THREE.Mesh(cylGeo, mat);
+  g.add(shaft);
+  const tip = head ? new THREE.Mesh(coneGeo, mat) : null;
+  if (tip) g.add(tip);
+  if (overlay) { shaft.renderOrder = 5; if (tip) tip.renderOrder = 5; }
+  g.userData = { shaft, tip, r, want: true };
+  return g;
+}
+function setArrow(g, a, b) {
+  const { shaft, tip, r } = g.userData;
+  _d.subVectors(b, a);
+  const len = _d.length();
+  if (len < 1e-6) { shaft.visible = false; if (tip) tip.visible = false; return; }
+  _d.divideScalar(len);
+  _q.setFromUnitVectors(UP, _d);
+  const hl = tip ? Math.min(r * 8, len * 0.45) : 0, sl = len - hl;
+  shaft.visible = true;
+  shaft.position.copy(a).addScaledVector(_d, sl / 2);
+  shaft.quaternion.copy(_q);
+  shaft.scale.set(r, sl, r);
+  if (tip) {
+    tip.visible = true;
+    tip.position.copy(a).addScaledVector(_d, sl + hl / 2);
+    tip.quaternion.copy(_q);
+    tip.scale.set(r * 2.8, hl, r * 2.8);
+  }
+}
+
+const labels = [];
+function makeLabel(html, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'lbl ' + cls;
+  el.innerHTML = `<span>${html}</span>`;
+  const o = new CSS2DObject(el);
+  labels.push(o);
+  return o;
+}
+function updateLabels() {
+  // CSS2DRenderer does not inherit parent visibility, so resolve it here.
+  for (const o of labels) {
+    let v = state.show.labels && o.userData.want !== false;
+    for (let p = o.parent; v && p; p = p.parent) if (!p.visible) v = false;
+    o.visible = v;
+  }
+}
+
+// ───────────────────────────── camera rigs ─────────────────────────────
+function makeRig(key) {
+  const s = SUB[key];
+  const rig = new THREE.Group();
+  scene.add(rig);
+  const ud = rig.userData;
+  ud.key = key;
+
+  const visuals = new THREE.Group();
+  rig.add(visuals);
+  ud.visuals = visuals;
+  ud.center = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), new THREE.MeshStandardMaterial({ color: 0xdddddd }));
+  ud.center.userData.rigKey = key;
+  visuals.add(ud.center);
+  const oLbl = makeLabel(`O<sub>${s}</sub>`);
+  visuals.add(oLbl);
+  const camLbl = makeLabel(key === 'L' ? 'left camera' : 'right camera', 'cam');
+  visuals.add(camLbl);
+
+  ud.triads = {};
+  for (const conv of ['figure', 'opencv']) {
+    const g = new THREE.Group();
+    visuals.add(g);
+    ud.triads[conv] = g;
+    const dirs = conv === 'figure' ? [[1, 0, 0], [0, 1, 0], [0, 0, 1]] : [[1, 0, 0], [0, -1, 0], [0, 0, -1]];
+    ['x̂', 'ŷ', 'ẑ'].forEach((n, i) => {
+      const a = makeArrow([COL.x, COL.y, COL.z][i], 0.016);
+      const tip = v3(dirs[i]).multiplyScalar(0.62);
+      setArrow(a, new THREE.Vector3(), tip);
+      g.add(a);
+      const l = makeLabel(`${n}<sub>${s}</sub>`, 'axis');
+      l.position.copy(tip).multiplyScalar(1.22);
+      g.add(l);
+    });
+  }
+
+  ud.frustum = new THREE.LineSegments(new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0xa0a0a0, transparent: true, opacity: 0.45 }));
+  visuals.add(ud.frustum);
+
+  // Image plane and everything drawn on it.
+  const pg = new THREE.Group();
+  rig.add(pg);
+  ud.planeGroup = pg;
+  ud.rt = new THREE.WebGLRenderTarget(IMG_W * 1.5, IMG_H * 1.5, { samples: 4 });
+  ud.plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({
+    map: ud.rt.texture, transparent: true, opacity: state.planeOpacity, side: THREE.DoubleSide, depthWrite: false }));
+  ud.plane.userData.rigKey = key;
+  pg.add(ud.plane);
+  ud.frame = new THREE.LineLoop(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0xffffff }));
+  pg.add(ud.frame);
+  ud.cross = new THREE.LineSegments(new THREE.BufferGeometry(),
+    new THREE.LineDashedMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, dashSize: 0.03, gapSize: 0.03 }));
+  pg.add(ud.cross);
+  ud.uAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 0.3, COL.x);
+  ud.vAxis = new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(), 0.3, COL.y);
+  pg.add(ud.uAxis, ud.vAxis);
+  ud.uAxisLbl = makeLabel(`û<sub>${s}</sub>`, 'axis');
+  ud.vAxisLbl = makeLabel(`v̂<sub>${s}</sub>`, 'axis');
+  pg.add(ud.uAxisLbl, ud.vAxisLbl);
+
+  ud.uMarker = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), new THREE.MeshBasicMaterial({ color: COL.pt, transparent: true }));
+  ud.uMarker.renderOrder = 6;
+  ud.uMarker.add(makeLabel(`<b>u</b><sub>${s}</sub>`, 'small'));
+  pg.add(ud.uMarker);
+
+  ud.eMarker = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.026, 0.042, 28), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true }));
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.026, 28), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true }));
+  ring.renderOrder = disc.renderOrder = 6;
+  ud.eMarker.add(ring, disc, makeLabel(`<b>e</b><sub>${s}</sub>`, 'small'));
+  pg.add(ud.eMarker);
+
+  ud.epiLine = makeArrow(COL.epi, 0.009, false, true);
+  pg.add(ud.epiLine);
+  ud.epiExt = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
+    new THREE.LineDashedMaterial({ color: COL.epi, dashSize: 0.04, gapSize: 0.03, transparent: true }));
+  ud.epiExt.renderOrder = 5;
+  pg.add(ud.epiExt);
+
+  ud.cands = [];
+  for (let i = 0; i < 8; i++) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffc38a, transparent: true }));
+    m.renderOrder = 6;
+    pg.add(m);
+    ud.cands.push(m);
+  }
+
+  ud.cam = new THREE.PerspectiveCamera(state.fov, IMG_W / IMG_H, 0.05, 200);
+  rig.add(ud.cam);
+  return rig;
+}
+
+const rigs = { L: makeRig('L'), R: makeRig('R') };
+
+function pixToLocal(u, v, I = intr()) {
+  const d = state.planeDist;
+  return new THREE.Vector3((u - I.cx) / I.f * d, -(v - I.cy) / I.f * d, -d);
+}
+function localToPix(p, I = intr()) {
+  return { u: I.cx + I.f * p.x / -p.z, v: I.cy - I.f * p.y / -p.z };
+}
+
+function rebuildRig(rig) {
+  const ud = rig.userData, d = state.planeDist;
+  const h = 2 * d * Math.tan(rad(state.fov) / 2), w = h * IMG_W / IMG_H;
+  ud.plane.geometry.dispose();
+  ud.plane.geometry = new THREE.PlaneGeometry(w, h);
+  ud.plane.position.set(0, 0, -d);
+  const c = [[-w / 2, h / 2], [w / 2, h / 2], [w / 2, -h / 2], [-w / 2, -h / 2]].map(([x, y]) => new THREE.Vector3(x, y, -d));
+  ud.frame.geometry.setFromPoints(c);
+  ud.cross.geometry.setFromPoints([new THREE.Vector3(-w / 2, 0, -d), new THREE.Vector3(w / 2, 0, -d),
+                                   new THREE.Vector3(0, -h / 2, -d), new THREE.Vector3(0, h / 2, -d)]);
+  ud.cross.computeLineDistances();
+  ud.cross.material.dashSize = ud.cross.material.gapSize = 0.03 * d;
+  const O = new THREE.Vector3();
+  ud.frustum.geometry.setFromPoints([O, c[0], O, c[1], O, c[2], O, c[3]]);
+  const L = w * 0.2;
+  ud.uAxis.position.copy(c[0]); ud.uAxis.setLength(L, L * 0.25, L * 0.14);
+  ud.vAxis.position.copy(c[0]); ud.vAxis.setLength(L, L * 0.25, L * 0.14);
+  ud.uAxisLbl.position.copy(c[0]).add(new THREE.Vector3(L * 1.25, 0.03, 0));
+  ud.vAxisLbl.position.copy(c[0]).add(new THREE.Vector3(-0.05, -L * 1.2, 0));
+  ud.cam.fov = state.fov;
+  ud.cam.updateProjectionMatrix();
+}
+
+// ───────────────────────────── scene-level overlays ─────────────────────────────
+const overlay = new THREE.Group();
+scene.add(overlay);
+const pMarker = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), new THREE.MeshStandardMaterial({ color: COL.pt, emissive: 0x803000 }));
+const pLabel = makeLabel('P');
+pMarker.add(pLabel);
+sceneGroup.add(pMarker);
+
+const rayArrows = { L: makeArrow(COL.ray, 0.022), R: makeArrow(COL.ray, 0.022) };
+const rayLabels = { L: makeLabel('<b>x</b><sub>l</sub>'), R: makeLabel('<b>x</b><sub>r</sub>') };
+const baseArrow = makeArrow(COL.base, 0.02);
+const baseLabel = makeLabel('<b>t</b>, R', 'base');
+overlay.add(rayArrows.L, rayArrows.R, baseArrow, rayLabels.L, rayLabels.R, baseLabel);
+
+const epiPlane = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({
+  color: COL.plane, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite: false }));
+epiPlane.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
+epiPlane.renderOrder = 1;
+epiPlane.frustumCulled = false;
+overlay.add(epiPlane);
+
+const worldCands = new THREE.Group();
+for (let i = 0; i < 8; i++) worldCands.add(new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 10),
+  new THREE.MeshStandardMaterial({ color: 0xffc38a, emissive: 0x402000 })));
+scene.add(worldCands);
+
+// ───────────────────────────── transform gizmo ─────────────────────────────
+const tc = new TransformControls(worldCam, renderer.domElement);
+tc.setSize(0.85);
+tc.addEventListener('dragging-changed', (e) => { orbit.enabled = !e.value; });
+scene.add(tc);
+
+// ───────────────────────────── epipolar math ─────────────────────────────
+const _m4 = new THREE.Matrix4();
+function camMath(rig) {
+  _m4.makeRotationFromQuaternion(rig.quaternion);
+  const e = _m4.elements;
+  // Rig frame follows the figure (x right, y up, z backward). OpenCV frame = diag(1,-1,-1) · rig frame.
+  const Rcv = [[e[0], e[1], e[2]], [-e[4], -e[5], -e[6]], [-e[8], -e[9], -e[10]]];
+  const C = arr(rig.position);
+  return { Rcv, C, t: scl(mv(Rcv, C), -1) };
+}
+function project(m, X, I) {
+  const Xc = add(mv(m.Rcv, X), m.t);
+  if (Xc[2] < 1e-6) return null;
+  return { u: I.f * Xc[0] / Xc[2] + I.cx, v: I.f * Xc[1] / Xc[2] + I.cy };
+}
+
+function computeEpipolar() {
+  const I = intr();
+  const mL = camMath(rigs.L), mR = camMath(rigs.R);
+  const R = mm(mR.Rcv, tr(mL.Rcv));
+  const t = sub(mR.t, mv(R, mL.t));
+  const E = mm(skew(t), R);
+  const F = mm(mm(tr(I.Ki), E), I.Ki);
+  const g = {
+    I, m: { L: mL, R: mR }, R, t, E, F,
+    e: { L: mv(I.K, add(mv(mL.Rcv, mR.C), mL.t)), R: mv(I.K, add(mv(mR.Rcv, mL.C), mR.t)) },
+    pt: { L: null, R: null }, line: { L: null, R: null }, cand: { L: [], R: [] },
+    mode: null, P: null, far: null, src: null, behind: [], degenerate: norm(t) < 1e-6,
+  };
+  const sel = state.sel;
+  if (!sel || g.degenerate) return g;
+  if (sel.type === '3d') {
+    g.mode = '3d';
+    const P = arr(sel.P);
+    g.P = P;
+    g.pt.L = project(mL, P, I);
+    g.pt.R = project(mR, P, I);
+    if (!g.pt.L) g.behind.push('left');
+    if (!g.pt.R) g.behind.push('right');
+    if (g.pt.L) g.line.R = mv(F, [g.pt.L.u, g.pt.L.v, 1]);
+    if (g.pt.R) g.line.L = mv(tr(F), [g.pt.R.u, g.pt.R.v, 1]);
+    if (g.pt.L && g.pt.R) {
+      const xl = [g.pt.L.u, g.pt.L.v, 1], xr = [g.pt.R.u, g.pt.R.v, 1], l = g.line.R;
+      g.algebraic = dot(xr, mv(F, xl)) / fro(F);
+      g.distPx = Math.abs(dot(l, xr)) / Math.hypot(l[0], l[1]);
+    }
+  } else {
+    g.mode = 'pix';
+    const src = sel.cam, dst = OTHER[src], ms = g.m[src], md = g.m[dst];
+    g.src = src;
+    const x = [sel.u, sel.v, 1];
+    g.pt[src] = { u: sel.u, v: sel.v };
+    g.line[dst] = mv(src === 'L' ? F : tr(F), x);
+    g.line[src] = cross(g.e[src], x);
+    let dir = mv(tr(ms.Rcv), mv(I.Ki, x));
+    dir = scl(dir, 1 / norm(dir));
+    g.far = add(ms.C, scl(dir, 16));
+    for (const s of [1.5, 2.5, 3.5, 5, 6.5, 8.5, 11, 14]) {
+      const X = add(ms.C, scl(dir, s));
+      g.cand[dst].push({ X, p: project(md, X, I) });
+    }
+  }
+  return g;
+}
+
+// Clip the line a·u + b·v + c = 0 to the image rectangle.
+function clipLine(l) {
+  if (!l) return null;
+  const [a, b, c] = l;
+  if (Math.hypot(a, b) < 1e-12) return null;
+  const pts = [];
+  if (Math.abs(b) > 1e-12) for (const u of [0, IMG_W]) { const v = -(a * u + c) / b; if (v >= -1e-6 && v <= IMG_H + 1e-6) pts.push([u, v]); }
+  if (Math.abs(a) > 1e-12) for (const v of [0, IMG_H]) { const u = -(b * v + c) / a; if (u >= -1e-6 && u <= IMG_W + 1e-6) pts.push([u, v]); }
+  let best = null, bd = 1e-3;
+  for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+    const d = Math.hypot(pts[i][0] - pts[j][0], pts[i][1] - pts[j][1]);
+    if (d > bd) { bd = d; best = [pts[i], pts[j]]; }
+  }
+  return best;
+}
+const inRect = (p) => p[0] >= 0 && p[0] <= IMG_W && p[1] >= 0 && p[1] <= IMG_H;
+function epipolePix(e) {
+  if (Math.abs(e[2]) < 1e-9 * Math.hypot(e[0], e[1])) return null; // at infinity
+  return [e[0] / e[2], e[1] / e[2]];
+}
+
+// ───────────────────────────── push math into the 3D scene ─────────────────────────────
+function update3D(g) {
+  const I = g.I;
+  for (const c of ['L', 'R']) {
+    const ud = rigs[c].userData;
+    const pt = g.pt[c];
+    ud.uMarker.visible = !!pt;
+    if (pt) ud.uMarker.position.copy(pixToLocal(pt.u, pt.v, I));
+
+    const seg = clipLine(g.line[c]);
+    ud.epiLine.visible = !!seg;
+    if (seg) setArrow(ud.epiLine, pixToLocal(...seg[0], I), pixToLocal(...seg[1], I));
+
+    let ep = epipolePix(g.e[c]);
+    if (ep && (Math.abs(ep[0] - I.cx) > 2.5 * IMG_W || Math.abs(ep[1] - I.cy) > 2.5 * IMG_H)) ep = null;
+    ud.eMarker.visible = !!ep && !g.degenerate;
+    if (ep) ud.eMarker.position.copy(pixToLocal(ep[0], ep[1], I));
+
+    ud.epiExt.visible = false;
+    if (seg && ep && !inRect(ep)) {
+      const a = Math.hypot(seg[0][0] - ep[0], seg[0][1] - ep[1]) < Math.hypot(seg[1][0] - ep[0], seg[1][1] - ep[1]) ? seg[0] : seg[1];
+      const pos = ud.epiExt.geometry.attributes.position;
+      const A = pixToLocal(a[0], a[1], I), B = pixToLocal(ep[0], ep[1], I);
+      pos.setXYZ(0, A.x, A.y, A.z); pos.setXYZ(1, B.x, B.y, B.z); pos.needsUpdate = true;
+      ud.epiExt.geometry.computeBoundingSphere();
+      ud.epiExt.computeLineDistances();
+      ud.epiExt.material.dashSize = 0.04 * state.planeDist; ud.epiExt.material.gapSize = 0.03 * state.planeDist;
+      ud.epiExt.visible = true;
+    }
+    ud.cands.forEach((m, i) => {
+      const cd = g.cand[c][i];
+      m.visible = !!(cd && cd.p);
+      if (m.visible) m.position.copy(pixToLocal(cd.p.u, cd.p.v, I));
+    });
+  }
+
+  const OL = rigs.L.position, OR = rigs.R.position;
+  pMarker.userData.want = g.mode === '3d';
+  rayArrows.L.userData.want = rayArrows.R.userData.want = false;
+  worldCands.userData.want = g.mode === 'pix';
+  epiPlane.userData.want = !!g.mode;
+  rayLabels.L.userData.want = rayLabels.R.userData.want = false;
+
+  let apex = null;
+  if (g.mode === '3d') {
+    apex = v3(g.P);
+    pMarker.position.copy(apex);
+    for (const c of ['L', 'R']) {
+      const O = rigs[c].position, dir = apex.clone().sub(O);
+      const end = apex.clone().addScaledVector(dir.normalize(), -0.1);
+      setArrow(rayArrows[c], O, end);
+      rayArrows[c].userData.want = true;
+      rayLabels[c].userData.want = true;
+      rayLabels[c].position.lerpVectors(O, apex, 0.55);
+    }
+  } else if (g.mode === 'pix') {
+    apex = v3(g.far);
+    const O = rigs[g.src].position;
+    setArrow(rayArrows[g.src], O, apex);
+    rayArrows[g.src].userData.want = true;
+    rayLabels[g.src].userData.want = true;
+    rayLabels[g.src].position.lerpVectors(O, apex, 0.25);
+    worldCands.children.forEach((m, i) => m.position.copy(v3(g.cand[OTHER[g.src]][i].X)));
+  }
+  if (apex) {
+    const p = epiPlane.geometry.attributes.position;
+    p.setXYZ(0, OL.x, OL.y, OL.z); p.setXYZ(1, OR.x, OR.y, OR.z); p.setXYZ(2, apex.x, apex.y, apex.z);
+    p.needsUpdate = true;
+  }
+  const bdir = OR.clone().sub(OL);
+  if (bdir.length() > 0.2) setArrow(baseArrow, OL, OR.clone().addScaledVector(bdir.normalize(), -0.1));
+  baseLabel.position.lerpVectors(OL, OR, 0.5);
+
+  for (const c of ['L', 'R']) {
+    const ud = rigs[c].userData;
+    const active = c === state.active;
+    ud.center.material.color.set(active ? 0xffffff : 0x8a8a8a);
+    ud.center.material.emissive.set(active ? 0x555555 : 0x000000);
+    ud.center.scale.setScalar(active ? 1.25 : 1);
+  }
+}
+
+// Per render-pass visibility: the overview sees everything, a camera sees only the scene
+// (plus, in its live view, the other camera and the other camera's ray).
+function setVis(pass) {
+  const S = state.show;
+  const main = pass === 'main', rt = pass.startsWith('rt'), inset = pass.startsWith('in');
+  const other = OTHER[pass.slice(-1)];
+  for (const c of ['L', 'R']) {
+    const ud = rigs[c].userData;
+    ud.visuals.visible = main || (inset && c === other);
+    ud.frustum.visible = main && S.frustum;
+    ud.planeGroup.visible = main && S.planes;
+    ud.triads.figure.visible = state.triad === 'figure';
+    ud.triads.opencv.visible = state.triad !== 'figure';
+    rayArrows[c].visible = rayArrows[c].userData.want && S.rays && (main || (inset && c === other));
+  }
+  baseArrow.visible = baseLabel.visible = main && S.rays;
+  rayLabels.L.visible = rayLabels.R.visible = main && S.rays;
+  epiPlane.visible = main && S.epiPlane && epiPlane.userData.want;
+  pMarker.visible = pMarker.userData.want && (main || rt || inset);
+  worldCands.visible = worldCands.userData.want && (main || inset);
+  cornerGroup.visible = main;
+  tc.visible = main && !!tc.object;
+}
+
+// ───────────────────────────── 2D camera-image overlays ─────────────────────────────
+const insetEls = { L: $('#insetL'), R: $('#insetR') };
+const overlayCanvas = { L: $('#insetL canvas'), R: $('#insetR canvas') };
+
+function drawOverlay(c, g) {
+  const cv = overlayCanvas[c];
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const bw = Math.round(r.width * dpr), bh = Math.round(r.height * dpr);
+  if (cv.width !== bw || cv.height !== bh) { cv.width = bw; cv.height = bh; }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, bw, bh);
+  const sx = bw / IMG_W;
+  ctx.setTransform(sx, 0, 0, bh / IMG_H, 0, 0);
+  const k = dpr / sx; // image pixels per CSS pixel
+  const s = SUB[c];
+  const font = (px, it = false) => `${it ? 'italic ' : ''}${px * k}px ${it ? '"Times New Roman", serif' : 'system-ui, sans-serif'}`;
+  const text = (str, x, y, color = '#fff', px = 13, it = true, align = 'left') => {
+    ctx.font = font(px, it); ctx.textAlign = align; ctx.lineWidth = 3 * k; ctx.strokeStyle = 'rgba(0,0,0,.85)';
+    ctx.strokeText(str, x, y); ctx.fillStyle = color; ctx.fillText(str, x, y);
+  };
+
+  // u, v axes (image origin is the top-left corner)
+  const a0 = 8 * k, al = 34 * k;
+  const arrowTo = (x0, y0, x1, y1, color) => {
+    ctx.strokeStyle = ctx.fillStyle = color; ctx.lineWidth = 2 * k;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    const ang = Math.atan2(y1 - y0, x1 - x0), h = 7 * k;
+    ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - h * Math.cos(ang - 0.45), y1 - h * Math.sin(ang - 0.45));
+    ctx.lineTo(x1 - h * Math.cos(ang + 0.45), y1 - h * Math.sin(ang + 0.45)); ctx.fill();
+  };
+  arrowTo(a0, a0, a0 + al, a0, '#ff5c5c');
+  arrowTo(a0, a0, a0, a0 + al, '#4fdc68');
+  text('u', a0 + al + 4 * k, a0 + 5 * k, '#ff8a8a', 14);
+  text('v', a0 - 3 * k, a0 + al + 14 * k, '#8af09a', 14);
+
+  // epipolar line
+  const seg = clipLine(g.line[c]);
+  if (seg) {
+    ctx.strokeStyle = '#ff4fa3'; ctx.lineWidth = 2.2 * k;
+    ctx.beginPath(); ctx.moveTo(...seg[0]); ctx.lineTo(...seg[1]); ctx.stroke();
+  }
+
+  // candidate projections (pixel mode)
+  for (const cd of g.cand[c]) if (cd.p) {
+    ctx.strokeStyle = '#ffc38a'; ctx.lineWidth = 1.6 * k;
+    ctx.beginPath(); ctx.arc(cd.p.u, cd.p.v, 4.5 * k, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // epipole
+  if (!g.degenerate) {
+    const e = g.e[c], ep = epipolePix(e);
+    if (ep && inRect(ep)) {
+      ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5 * k;
+      ctx.beginPath(); ctx.arc(ep[0], ep[1], 5.5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      text(`e${s === 'l' ? 'ₗ' : 'ᵣ'}`, ep[0] + 8 * k, ep[1] - 6 * k, '#fff', 15);
+    } else {
+      // arrow on the border pointing towards the epipole (or its direction, if at infinity)
+      let dx, dy;
+      if (ep) { dx = ep[0] - IMG_W / 2; dy = ep[1] - IMG_H / 2; } else { dx = e[0]; dy = e[1]; }
+      const m = 16 * k, hw = IMG_W / 2 - m, hh = IMG_H / 2 - m;
+      const tt = Math.min(Math.abs(dx) > 1e-9 ? hw / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-9 ? hh / Math.abs(dy) : Infinity);
+      if (isFinite(tt)) {
+        const bx = IMG_W / 2 + dx * tt, by = IMG_H / 2 + dy * tt, ang = Math.atan2(dy, dx), h = 10 * k;
+        ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5 * k;
+        ctx.beginPath(); ctx.moveTo(bx + h * Math.cos(ang), by + h * Math.sin(ang));
+        ctx.lineTo(bx + h * Math.cos(ang + 2.4), by + h * Math.sin(ang + 2.4));
+        ctx.lineTo(bx + h * Math.cos(ang - 2.4), by + h * Math.sin(ang - 2.4)); ctx.closePath(); ctx.fill(); ctx.stroke();
+        const lbl = `e${s === 'l' ? 'ₗ' : 'ᵣ'} ${ep ? 'outside' : 'at ∞'}`;
+        const tx = bx - Math.cos(ang) * 14 * k;
+        const ty = Math.abs(Math.cos(ang)) > 0.3 ? by - 12 * k : by - Math.sin(ang) * 22 * k + 4 * k;
+        text(lbl, tx, ty, '#fff', 13, true, Math.cos(ang) > 0.3 ? 'right' : Math.cos(ang) < -0.3 ? 'left' : 'center');
+      }
+    }
+  }
+
+  // the image point
+  const pt = g.pt[c];
+  if (pt && pt.u > -50 && pt.u < IMG_W + 50) {
+    ctx.fillStyle = '#ff8a30'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5 * k;
+    ctx.beginPath(); ctx.arc(pt.u, pt.v, 5.5 * k, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    text(`u${s === 'l' ? 'ₗ' : 'ᵣ'}`, pt.u + 8 * k, pt.v - 7 * k, '#ffb070', 15);
+  }
+  const info = pt ? `u${s === 'l' ? 'ₗ' : 'ᵣ'} = (${pt.u.toFixed(1)}, ${pt.v.toFixed(1)})`
+             : (g.mode === '3d' ? 'P is behind this camera' : '');
+  if (info) text(info, 8 * k, IMG_H - 8 * k, pt ? '#ddd' : '#ff9a9a', 12, false);
+}
+
+// ───────────────────────────── info panel ─────────────────────────────
+const fmt = (x, d = 3) => { if (Math.abs(x) < 0.5 * 10 ** -d) x = 0; return (x < 0 ? '−' : ' ') + Math.abs(x).toFixed(d); };
+const fmtE = (x) => {
+  if (Math.abs(x) < 1e-12) return '\u20070';
+  const [m, ex] = x.toExponential(2).split('e');
+  const n = parseInt(ex, 10);
+  const mant = (x < 0 ? '−' : '\u2007') + m.replace('-', '');
+  return n === 0 ? mant : `${mant}·10<sup>${n < 0 ? '−' : ''}${Math.abs(n)}</sup>`;
+};
+const matHTML = (M, f) => `<table class="mat">${M.map((r) => `<tr>${r.map((v) => `<td>${f(v)}</td>`).join('')}</tr>`).join('')}</table>`;
+const vecHTML = (v, f) => matHTML(v.map((x) => [x]), f);
+const sub2 = (c) => (c === 'L' ? 'l' : 'r');
+
+function epText(e) {
+  const p = epipolePix(e);
+  return p ? `(${p[0].toFixed(1)}, ${p[1].toFixed(1)})` : 'at infinity';
+}
+
+let lastInfo = 0;
+function updateInfo(g, force = false) {
+  const now = performance.now();
+  if (!force && now - lastInfo < 120) return;
+  lastInfo = now;
+  const fn = fro(g.F) || 1;
+  const Fn = g.F.map((r) => r.map((v) => v / fn));
+  let h = '';
+  h += `<div class="blk kv"><span class="name">R</span>${matHTML(g.R, (v) => fmt(v))}<span class="name" style="margin-left:10px"><b>t</b></span>${vecHTML(g.t, (v) => fmt(v, 2))}</div>`;
+  h += `<div class="blk kv"><span class="name">E</span>${matHTML(g.E, (v) => fmt(v, 3))}</div>`;
+  h += `<div class="blk kv"><span class="name">F/‖F‖</span>${matHTML(Fn, fmtE)}</div>`;
+  h += `<div class="blk">f = ${g.I.f.toFixed(1)} px, c = (${g.I.cx}, ${g.I.cy})</div>`;
+  h += `<div class="blk">Epipoles: e<sub>l</sub> = ${epText(g.e.L)}, e<sub>r</sub> = ${epText(g.e.R)}</div>`;
+  if (g.mode === '3d' && g.distPx !== undefined) {
+    h += `<div class="blk">u<sub>l</sub> = (${g.pt.L.u.toFixed(1)}, ${g.pt.L.v.toFixed(1)}), u<sub>r</sub> = (${g.pt.R.u.toFixed(1)}, ${g.pt.R.v.toFixed(1)})</div>`;
+    h += `<div class="blk">Check: u<sub>r</sub><sup>T</sup>(F/‖F‖)u<sub>l</sub> = <span class="ok">${g.algebraic.toExponential(1)}</span><br>
+          distance from u<sub>r</sub> to the line F u<sub>l</sub>: <span class="ok">${g.distPx.toExponential(1)} px</span></div>`;
+  }
+  $('#math').innerHTML = h;
+
+  const warn = $('#warn');
+  const msgs = [];
+  if (g.degenerate) msgs.push('The two optical centers coincide — epipolar geometry is undefined.');
+  if (g.behind.length) msgs.push(`P is behind the ${g.behind.join(' and ')} camera, so it has no image there.`);
+  warn.style.display = msgs.length ? 'block' : 'none';
+  warn.textContent = msgs.join(' ');
+}
+
+function updateSelInfo() {
+  const s = state.sel, el = $('#selInfo');
+  if (!s) { el.innerHTML = 'Click a <b>corner</b> of the W, any spot on its <b>surface</b>, a spot on an <b>image plane</b>, or a pixel in a <b>camera view</b>.'; return; }
+  if (s.type === '3d') {
+    const p = s.P;
+    el.innerHTML = `<b>P</b> = ${s.label}<br>P = (${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}) in world coordinates.`;
+  } else {
+    const a = sub2(s.cam), b = sub2(OTHER[s.cam]);
+    el.innerHTML = `<b>Pixel u<sub>${a}</sub></b> = (${s.u.toFixed(1)}, ${s.v.toFixed(1)}) picked in the ${s.cam === 'L' ? 'left' : 'right'} image.
+      Its 3D point could be anywhere on the ray <b>x</b><sub>${a}</sub>; every candidate (orange dots) lands on the pink epipolar line in the other image, so the match for u<sub>${a}</sub> only has to be searched along that line.`;
+  }
+  corners.forEach((c) => c.material.color.set(s && s.corner === c.userData.idx ? COL.pt : 0xf0f0f0));
+}
+
+// ───────────────────────────── selection & picking ─────────────────────────────
+function selectCorner(idx) {
+  const c = corners[(idx + corners.length) % corners.length];
+  state.sel = { type: '3d', P: c.position.clone(), corner: c.userData.idx, label: `corner ${c.userData.name} of the W (${c.userData.face} face)` };
+  updateSelInfo();
+}
+function selectPixel(cam, u, v) {
+  state.sel = { type: 'pix', cam, u: THREE.MathUtils.clamp(u, 0, IMG_W), v: THREE.MathUtils.clamp(v, 0, IMG_H) };
+  updateSelInfo();
+}
+
+const raycaster = new THREE.Raycaster();
+function screenOf(p) {
+  const q = p.clone().project(worldCam), r = renderer.domElement.getBoundingClientRect();
+  return { x: (q.x + 1) / 2 * r.width, y: (1 - q.y) / 2 * r.height, front: q.z < 1 };
+}
+function nearestCorner(x, y) {
+  let best = null, bk = Infinity;
+  for (const c of corners) {
+    const s = screenOf(c.position);
+    if (!s.front) continue;
+    const d = Math.hypot(s.x - x, s.y - y);
+    if (d > 13) continue;
+    const key = Math.floor(d / 5) * 1000 + c.position.distanceTo(worldCam.position);
+    if (key < bk) { bk = key; best = c; }
+  }
+  return best;
+}
+function nearestRig(x, y) {
+  let best = null, bd = 18;
+  for (const c of ['L', 'R']) {
+    const s = screenOf(rigs[c].position);
+    const d = Math.hypot(s.x - x, s.y - y);
+    if (s.front && d < bd) { bd = d; best = c; }
+  }
+  return best;
+}
+function localXY(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height };
+}
+
+function handleClick(e) {
+  const { x, y, w, h } = localXY(e);
+  const c = nearestCorner(x, y);
+  if (c) { selectCorner(c.userData.idx); return; }
+  const rk = nearestRig(x, y);
+  if (rk) { setActive(rk); return; }
+  raycaster.setFromCamera(new THREE.Vector2(x / w * 2 - 1, -(y / h) * 2 + 1), worldCam);
+  const targets = [wMesh];
+  if (state.show.planes) targets.push(rigs.L.userData.plane, rigs.R.userData.plane);
+  const hit = raycaster.intersectObjects(targets, false)[0];
+  if (!hit) return;
+  if (hit.object === wMesh) {
+    state.sel = { type: '3d', P: hit.point.clone(), label: 'a point on the surface of the W' };
+    updateSelInfo();
+  } else {
+    const key = hit.object.userData.rigKey;
+    const p = localToPix(rigs[key].worldToLocal(hit.point.clone()));
+    selectPixel(key, p.u, p.v);
+  }
+}
+
+let down = null, hovered = null;
+const canvas = renderer.domElement;
+canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, gizmo: tc.dragging || tc.axis !== null }; });
+canvas.addEventListener('pointerup', (e) => {
+  if (down && e.button === 0 && !down.gizmo && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5) handleClick(e);
+  down = null;
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (e.buttons) return;
+  const { x, y } = localXY(e);
+  const c = nearestCorner(x, y);
+  if (hovered && hovered !== c) hovered.scale.setScalar(1);
+  hovered = c;
+  if (c) c.scale.setScalar(1.6);
+  canvas.style.cursor = c || nearestRig(x, y) ? 'pointer' : (tc.axis ? '' : 'grab');
+});
+
+for (const c of ['L', 'R']) {
+  const cv = overlayCanvas[c];
+  const pick = (e) => {
+    const r = cv.getBoundingClientRect();
+    selectPixel(c, (e.clientX - r.left) / r.width * IMG_W, (e.clientY - r.top) / r.height * IMG_H);
+  };
+  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); pick(e); });
+  cv.addEventListener('pointermove', (e) => { if (e.buttons) pick(e); });
+}
+
+// ───────────────────────────── camera manipulation ─────────────────────────────
+function setPose(rig, pose) {
+  rig.position.set(...pose.p);
+  _m4.lookAt(rig.position, v3(pose.t), UP);
+  rig.quaternion.setFromRotationMatrix(_m4);
+  if (pose.roll) rig.rotateZ(rad(pose.roll));
+}
+function aimAt(rig, target) {
+  _m4.lookAt(rig.position, target, UP);
+  rig.quaternion.setFromRotationMatrix(_m4);
+}
+function applyPreset(name) {
+  state.preset = name;
+  setPose(rigs.L, PRESETS[name].L);
+  setPose(rigs.R, PRESETS[name].R);
+  document.querySelectorAll('#presets button').forEach((b) => b.classList.toggle('on', b.dataset.v === name));
+}
+function setActive(c) {
+  state.active = c;
+  if (state.gizmo !== 'off') tc.attach(rigs[c]);
+  refreshSegs();
+}
+function setGizmo(m) {
+  state.gizmo = m;
+  if (m === 'off') tc.detach();
+  else { tc.setMode(m); tc.attach(rigs[state.active]); }
+  refreshSegs();
+}
+function setSpace(s) { state.space = s; tc.setSpace(s); refreshSegs(); }
+
+const STEP = 0.15, ASTEP = rad(2.5);
+const ACTIONS = {
+  'tx+': (r) => r.translateX(STEP), 'tx-': (r) => r.translateX(-STEP),
+  'ty+': (r) => r.translateY(STEP), 'ty-': (r) => r.translateY(-STEP),
+  'tz+': (r) => r.translateZ(STEP), 'tz-': (r) => r.translateZ(-STEP),
+  'yaw+': (r) => r.rotateY(ASTEP), 'yaw-': (r) => r.rotateY(-ASTEP),
+  'pitch+': (r) => r.rotateX(ASTEP), 'pitch-': (r) => r.rotateX(-ASTEP),
+  'roll+': (r) => r.rotateZ(ASTEP), 'roll-': (r) => r.rotateZ(-ASTEP),
+};
+document.querySelectorAll('[data-act]').forEach((b) => {
+  let t1 = null, t2 = null;
+  const stop = () => { clearTimeout(t1); clearInterval(t2); t1 = t2 = null; };
+  b.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    const act = () => ACTIONS[b.dataset.act](rigs[state.active]);
+    act();
+    t1 = setTimeout(() => { t2 = setInterval(act, 40); }, 320);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => b.addEventListener(ev, stop));
+});
+
+// ───────────────────────────── panel wiring ─────────────────────────────
+function refreshSegs() {
+  const set = (id, v) => document.querySelectorAll(`${id} button`).forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+  set('#segCam', state.active);
+  set('#segGizmo', state.gizmo);
+  set('#segSpace', state.space);
+}
+const segClick = (id, fn) => $(id).addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) fn(b.dataset.v); });
+segClick('#segCam', setActive);
+segClick('#segGizmo', setGizmo);
+segClick('#segSpace', setSpace);
+
+const presetsEl = $('#presets');
+for (const [k, p] of Object.entries(PRESETS)) {
+  const b = document.createElement('button');
+  b.textContent = p.name; b.dataset.v = k;
+  b.addEventListener('click', () => applyPreset(k));
+  presetsEl.appendChild(b);
+}
+$('#btnAim').addEventListener('click', () => aimAt(rigs[state.active], W_CENTER));
+$('#btnResetCam').addEventListener('click', () => setPose(rigs[state.active], PRESETS[state.preset][state.active]));
+$('#btnClear').addEventListener('click', () => { state.sel = null; updateSelInfo(); });
+$('#btnNext').addEventListener('click', () => selectCorner(state.sel?.corner !== undefined ? state.sel.corner + 1 : 0));
+$('#btnPrev').addEventListener('click', () => selectCorner(state.sel?.corner !== undefined ? state.sel.corner - 1 : 0));
+
+function bindSlider(id, out, key, f) {
+  const el = $(id), o = $(out);
+  el.value = state[key];
+  const upd = () => { state[key] = parseFloat(el.value); o.textContent = f(state[key]); onParamsChanged(); };
+  el.addEventListener('input', upd);
+  o.textContent = f(state[key]);
+}
+function onParamsChanged() {
+  rebuildRig(rigs.L); rebuildRig(rigs.R);
+  for (const c of ['L', 'R']) rigs[c].userData.plane.material.opacity = state.planeOpacity;
+}
+bindSlider('#fov', '#oFov', 'fov', (v) => `${v.toFixed(0)}°`);
+bindSlider('#dist', '#oDist', 'planeDist', (v) => v.toFixed(2));
+bindSlider('#op', '#oOp', 'planeOpacity', (v) => v.toFixed(2));
+document.querySelectorAll('[data-show]').forEach((cb) => {
+  cb.checked = state.show[cb.dataset.show];
+  cb.addEventListener('change', () => {
+    state.show[cb.dataset.show] = cb.checked;
+    if (cb.dataset.show === 'insets') for (const c of ['L', 'R']) insetEls[c].style.display = cb.checked ? '' : 'none';
+  });
+});
+$('#triad').addEventListener('change', (e) => { state.triad = e.target.value; });
+
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest('input, select, textarea')) return;
+  const k = e.key.toLowerCase();
+  if (k === '1') setActive('L');
+  else if (k === '2') setActive('R');
+  else if (k === 't') setGizmo('translate');
+  else if (k === 'r') setGizmo('rotate');
+  else if (k === 'o') setGizmo('off');
+  else if (k === 'q') setSpace(state.space === 'local' ? 'world' : 'local');
+  else if (k === 'escape') { state.sel = null; updateSelInfo(); }
+});
+
+// ───────────────────────────── sizing & render loop ─────────────────────────────
+function resize() {
+  const w = viewportEl.clientWidth, h = viewportEl.clientHeight;
+  renderer.setSize(w, h);
+  labelRenderer.setSize(w, h);
+  worldCam.aspect = w / h;
+  worldCam.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(viewportEl);
+
+function renderInset(c) {
+  const cr = canvas.getBoundingClientRect(), r = overlayCanvas[c].getBoundingClientRect();
+  if (r.width < 2) return;
+  const x = r.left - cr.left, y = cr.bottom - r.bottom;
+  setVis('in' + c);
+  renderer.setViewport(x, y, r.width, r.height);
+  renderer.setScissor(x, y, r.width, r.height);
+  renderer.setScissorTest(true);
+  renderer.setClearColor(COL.insetBg);
+  renderer.clear();
+  renderer.render(scene, rigs[c].userData.cam);
+  renderer.setScissorTest(false);
+}
+
+function frame() {
+  requestAnimationFrame(frame);
+  orbit.update();
+  scene.updateMatrixWorld();
+  const g = computeEpipolar();
+  update3D(g);
+
+  // 1) what each camera sees → texture on its image plane
+  for (const c of ['L', 'R']) {
+    setVis('rt' + c);
+    renderer.setRenderTarget(rigs[c].userData.rt);
+    renderer.setClearColor(COL.imgBg);
+    renderer.clear();
+    renderer.render(scene, rigs[c].userData.cam);
+  }
+  renderer.setRenderTarget(null);
+
+  // 2) overview
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  setVis('main');
+  renderer.setViewport(0, 0, w, h);
+  renderer.setClearColor(COL.bg);
+  renderer.clear();
+  renderer.render(scene, worldCam);
+
+  // 3) live camera views
+  if (state.show.insets) {
+    renderInset('L'); renderInset('R');
+    renderer.setViewport(0, 0, w, h);
+    drawOverlay('L', g); drawOverlay('R', g);
+  }
+
+  setVis('main');
+  updateLabels();
+  labelRenderer.render(scene, worldCam);
+  updateInfo(g);
+}
+
+// ───────────────────────────── init ─────────────────────────────
+onParamsChanged();
+applyPreset('figure');
+setGizmo('translate');
+setSpace('local');
+setActive('L');
+selectCorner(3);
+resize();
+frame();
+</script>
+</body>
+</html>
